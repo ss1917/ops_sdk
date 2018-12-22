@@ -188,3 +188,7 @@ req = my_salt.run('*', 'cmd.run_all', 'w')
 status, stdout, stderr = req[0], req[1], req[2]
 print(status, stdout, stderr)
 ```
+
+## License
+
+Everything is [GPL v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
