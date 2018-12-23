@@ -28,7 +28,7 @@ def init_engine(**settings):
         dbname = db_conf[const.DBNAME_KEY]
         engine = create_engine('mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8'
                                .format(user=dbuser, pwd=quote_plus(dbpwd), host=dbhost, port=dbport, dbname=dbname),
-                               logging_name=dbkey, pool_size=50, pool_timeout=120)
+                               logging_name=dbkey, pool_size=100, pool_timeout=120, pool_recycle=60)
         engines[dbkey] = engine
 
 
