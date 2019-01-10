@@ -8,6 +8,7 @@ role   : 数据库连接
 import pymysql
 from urllib.parse import quote_plus
 from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
 from sqlalchemy.orm import sessionmaker
 from .consts import const
 from .configs import configs
@@ -28,7 +29,8 @@ def init_engine(**settings):
         dbname = db_conf[const.DBNAME_KEY]
         engine = create_engine('mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8'
                                .format(user=dbuser, pwd=quote_plus(dbpwd), host=dbhost, port=dbport, dbname=dbname),
-                               logging_name=dbkey)
+                               # logging_name=dbkey)
+                               logging_name=dbkey, poolclass=NullPool)
         engines[dbkey] = engine
 
 
@@ -58,9 +60,9 @@ class DBContext(object):
         self.__engine = engine
         self.need_commit = need_commit
 
-    @property
-    def db_key(self):
-        return self.__db_key
+    # @property
+    # def db_key(self):
+    #     return self.__db_key
 
     @staticmethod
     def __get_db_engine(db_key, **settings):
@@ -77,6 +79,7 @@ class DBContext(object):
         return self.__session
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        print(exc_type, exc_val, exc_tb)
         if self.need_commit:
             if exc_type:
                 self.__session.rollback()
