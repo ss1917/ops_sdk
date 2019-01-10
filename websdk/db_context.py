@@ -79,7 +79,6 @@ class DBContext(object):
         return self.__session
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        print(exc_type, exc_val, exc_tb)
         if self.need_commit:
             if exc_type:
                 self.__session.rollback()
