@@ -4,7 +4,8 @@
 import shortuuid
 from .cache import get_cache
 from tornado.web import RequestHandler, HTTPError
-from .jwt_token import AuthToken
+# from .jwt_token import AuthToken
+import jwt
 
 
 
@@ -43,8 +44,9 @@ class BaseHandler(RequestHandler):
             raise HTTPError(401, 'auth failed')
 
         else:
-            auth_token = AuthToken()
-            user_info = auth_token.decode_auth_token(auth_key)
+            #auth_token = AuthToken()
+            #user_info = auth_token.decode_auth_token(auth_key)  ### 验证权限
+            user_info = jwt.decode(auth_key, verify=False)
             self.user_id = user_info.get('user_id', None)
             self.username = user_info.get('username', None)
             self.nickname = user_info.get('nickname', None)
@@ -115,5 +117,8 @@ class BaseHandler(RequestHandler):
 
 
 class LivenessProbe(RequestHandler):
+    def head(self, *args, **kwargs):
+        self.write("I'm OK")
+
     def get(self, *args, **kwargs):
         self.write("I'm OK")
