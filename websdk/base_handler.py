@@ -46,7 +46,10 @@ class BaseHandler(RequestHandler):
         else:
             #auth_token = AuthToken()
             #user_info = auth_token.decode_auth_token(auth_key)  ### 验证权限
-            user_info = jwt.decode(auth_key, verify=False)
+            user_info = jwt.decode(auth_key, verify=False).get('data')
+            if not user_info:
+                raise HTTPError(401, 'auth failed')
+            
             self.user_id = user_info.get('user_id', None)
             self.username = user_info.get('username', None)
             self.nickname = user_info.get('nickname', None)
