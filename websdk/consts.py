@@ -112,6 +112,8 @@ const.DOMAIN = "dysmsapi.aliyuncs.com"
 
 ### app settings
 const.APP_SETTINGS = 'APP_SETTINGS'
+### all user info
+const.USERS_INFO = 'USERS_INFO'
 ##### API GW
 const.WEBSITE_API_GW_URL = 'WEBSITE_API_GW_URL'
 const.EMAILLOGIN_DOMAIN = 'EMAILLOGIN_DOMAIN'
