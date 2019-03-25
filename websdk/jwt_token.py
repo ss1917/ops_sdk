@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-import jwt, datetime,hashlib
+import jwt, datetime, hashlib
 from .configs import configs as my_configs
 
 
@@ -8,7 +8,7 @@ class AuthToken:
     def __init__(self):
         self.token_secret = my_configs.get('token_secret', '3AIiOq18i~H=WWTIGq4ODQyMzcsIdfghs')
 
-    def encode_auth_token(self, **kargs):
+    def encode_auth_token(self, **kwargs):
         """
         生成认证Token
         :param user_id: string
@@ -17,18 +17,19 @@ class AuthToken:
         :return: string
         """
         try:
+            exp_time = kwargs.get('exp_time', 1)
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1, seconds=10),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=exp_time, seconds=10),
                 'nbf': datetime.datetime.utcnow() - datetime.timedelta(seconds=10),
                 'iat': datetime.datetime.utcnow(),
                 'iss': 'auth: ss',
                 'sub': 'my token',
                 'id': '15618718060',
                 'data': {
-                    'user_id': kargs.get('user_id',''),
-                    'username': kargs.get('username',''),
-                    'nickname': kargs.get('nickname',''),
-                    'is_superuser': kargs.get('is_superuser', False)
+                    'user_id': kwargs.get('user_id', ''),
+                    'username': kwargs.get('username', ''),
+                    'nickname': kwargs.get('nickname', ''),
+                    'is_superuser': kwargs.get('is_superuser', False)
                 }
             }
             return jwt.encode(
@@ -57,6 +58,7 @@ class AuthToken:
             return dict(status=-1, msg='Token过期')
         except jwt.InvalidTokenError:
             return dict(status=-2, msg='无效Token')
+
 
 def gen_md5(pd):
     m2 = hashlib.md5()
