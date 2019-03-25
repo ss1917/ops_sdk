@@ -19,7 +19,7 @@ class AuthToken:
         try:
             exp_time = kwargs.get('exp_time', 1)
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=exp_time, seconds=10),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=int(exp_time), seconds=10),
                 'nbf': datetime.datetime.utcnow() - datetime.timedelta(seconds=10),
                 'iat': datetime.datetime.utcnow(),
                 'iss': 'auth: ss',
