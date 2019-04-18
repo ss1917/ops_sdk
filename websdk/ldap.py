@@ -61,7 +61,7 @@ class LdapApi:
                     else:
                         email = None
 
-                    return True, username, email
+                    return True, attr_dict["cn"][0], email
                 else:
                     print("auth fail")
                     return False, None, None
