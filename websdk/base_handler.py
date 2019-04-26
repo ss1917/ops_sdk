@@ -39,6 +39,11 @@ class BaseHandler(RequestHandler):
         auth_key = self.get_cookie('auth_key', None)
 
         if not auth_key:
+            url_auth_key = self.get_argument('auth_key', default=None, strip=True)
+            if url_auth_key:
+                auth_key = bytes(url_auth_key, encoding='utf-8')
+
+        if not auth_key:
         # if not auth_key or not self.get_secure_cookie("user_id") or not self.get_secure_cookie("username") :
             # 没登录，就让跳到登陆页面
             raise HTTPError(401, 'auth failed')
