@@ -16,7 +16,7 @@ class MysqlBase:
         self.user = args.get('user')
         self.pswd = args.get('passwd')
         self.db = args.get('db')
-        self.port = args.get('port')
+        self.port = int(args.get('port', 3306))
         self.charset = args.get('charset', 'utf8')
 
         log_path = '/log/yunwei/yunwei_mysql.log'
