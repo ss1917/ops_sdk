@@ -53,6 +53,25 @@ def is_mail(text, login_mail=None):
     else:
         return False
 
+def is_tel(tel):
+    ### 检查是否是手机号
+    ret = re.match(r"^1[35678]\d{9}$", tel)
+    if ret:
+        return True
+    else:
+        return False
+
+def check_contain_chinese(check_str):
+    ### 检查是否包含汉字
+    """
+    :param check_str:
+    :return:
+    """
+    for ch in check_str:
+        if u'\u4e00' <= ch <= u'\u9fff':
+            return True
+    return False
+
 
 class Executor(ThreadPoolExecutor):
     """ 线程执行类 """
