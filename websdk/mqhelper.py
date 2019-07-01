@@ -27,7 +27,7 @@ class MessageQueueBase(object):
         if const.MQ_PWD not in mq_config:
             raise ConfigError(const.MQ_PWD)
         self.addr = mq_config[const.MQ_ADDR]
-        self.port = mq_config[const.MQ_PORT]
+        self.port = int(mq_config[const.MQ_PORT])
         self.vhost = mq_config[const.MQ_VHOST]
         self.user = mq_config[const.MQ_USER]
         self.pwd = mq_config[const.MQ_PWD]
