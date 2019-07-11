@@ -40,8 +40,8 @@ class LdapApi:
         res = conn.search(search_base=search_base,
                           search_filter='({}={})'.format(search_filter, username),
                           search_scope=SUBTREE,
-                          attributes=['cn', 'givenName', 'email', 'mail', 'sAMAccountName'],
-                          paged_size=5)
+                          # attributes=['cn', 'givenName', 'email', 'mail', 'sAMAccountName'],
+                          attributes=['cn', 'email', 'mail'], paged_size=5)
 
         if res:
             entry = conn.response[0]
@@ -55,7 +55,7 @@ class LdapApi:
                 conn2.bind()
                 if conn2.result["description"] == "success":
                     if attr_dict["email"]:
-                        email =  attr_dict["email"][0]
+                        email = attr_dict["email"][0]
                     elif attr_dict["mail"]:
                         email = attr_dict["mail"][0]
                     else:
