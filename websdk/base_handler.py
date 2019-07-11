@@ -12,10 +12,7 @@ import jwt
 class BaseHandler(RequestHandler):
     def __init__(self, *args, **kwargs):
         self.new_csrf_key = str(shortuuid.uuid())
-        self.user_id = None
-        self.username = None
-        self.nickname = None
-        self.is_super = False
+        self.user_id, self.username, self.nickname, self.email, self.is_super = None, None, None, None, False
         self.is_superuser = self.is_super
 
         super(BaseHandler, self).__init__(*args, **kwargs)
@@ -58,6 +55,7 @@ class BaseHandler(RequestHandler):
             self.user_id = user_info.get('user_id', None)
             self.username = user_info.get('username', None)
             self.nickname = user_info.get('nickname', None)
+            self.email = user_info.get('email', None)
             self.is_super = user_info.get('is_superuser', False)
 
             if not self.user_id:
@@ -67,6 +65,7 @@ class BaseHandler(RequestHandler):
                 self.set_secure_cookie("user_id", self.user_id)
                 self.set_secure_cookie("nickname", self.nickname)
                 self.set_secure_cookie("username",  self.username)
+                self.set_secure_cookie("email", self.email)
         self.is_superuser = self.is_super
         ### SDK 不用处理鉴权
         #         my_verify = MyVerify(self.user_id)
@@ -91,6 +90,9 @@ class BaseHandler(RequestHandler):
 
     def get_current_nickname(self):
         return self.nickname
+
+    def get_current_email(self):
+        return self.email
 
     def is_superuser(self):
         return self.is_superuser

@@ -29,6 +29,7 @@ class AuthToken:
                     'user_id': kwargs.get('user_id', ''),
                     'username': kwargs.get('username', ''),
                     'nickname': kwargs.get('nickname', ''),
+                    'email': kwargs.get('email', ''),
                     'is_superuser': kwargs.get('is_superuser', False)
                 }
             }
