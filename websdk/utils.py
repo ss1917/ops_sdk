@@ -71,7 +71,7 @@ class SendMail(object):
                 # print('Use TLS SendMail')
                 '''使用普通模式'''
                 server = smtplib.SMTP()
-                server.connect(self.mail_host)  # 连接服务器
+                server.connect(self.mail_host, self.mail_port)  # 连接服务器
                 server.login(self.__mail_user, self.__mail_password)  # 登录操作
                 server.sendmail(self.__mail_user, to_list.split(','), msg.as_string())
                 server.close()
