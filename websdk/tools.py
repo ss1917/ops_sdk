@@ -8,6 +8,7 @@ role   : 工具类
 
 import sys
 import re
+import time
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
@@ -92,3 +93,35 @@ def exec_shell(cmd):
         return ret, stdout.decode('utf-8').split('\n')
     else:
         return ret, stdout.decode('utf-8').replace('\n', '')
+
+
+class RunningProcess:
+    def __init__(self, process):
+        self.process = process
+        self.start_time = time.time()
+
+    def is_running(self):
+        return bool(self.process.poll() is None)
+
+    def read_line(self):
+        return self.process.stdout.readline()
+
+    @property
+    def unread_lines(self):
+        lines = self.process.stdout.readlines()
+        self.process.stdout.close()
+        return lines
+
+    @property
+    def run_state(self):
+        return bool(self.process.poll() is 0)
+
+    def is_timeout(self, exec_time=600):
+        duration = time.time() - self.start_time
+        if duration > exec_time:
+            self.process.terminate()
+            self.process.wait()
+            self.process.communicate()
+            # print("execute timeout, execute time {}, it's killed.".format(duration))
+            return True
+        return False
