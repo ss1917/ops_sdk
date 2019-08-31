@@ -1,0 +1,14 @@
+deb http://mirror.xtom.com.hk/debian/ stretch main contrib non-free
+deb-src http://mirror.xtom.com.hk/debian/ stretch main contrib non-free
+
+deb http://mirror.xtom.com.hk/debian/ stretch-updates main contrib non-free
+deb-src http://mirror.xtom.com.hk/debian/ stretch-updates main contrib non-free
+
+deb http://mirror.xtom.com.hk/debian/ stretch-backports main contrib non-free
+deb-src http://mirror.xtom.com.hk/debian/ stretch-backports main contrib non-free
+
+deb http://mirror.xtom.com.hk/debian-security/ stretch/updates main contrib non-free
+deb-src http://mirror.xtom.com.hk/debian-security/ stretch/updates main contrib non-free
+
+deb http://mirror.xtom.com.hk/debian-security/ stretch/updates main non-free contrib
+deb-src http://mirror.xtom.com.hk/debian-security/ stretch/updates main non-free contrib

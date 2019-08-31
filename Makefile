@@ -1,8 +1,13 @@
+help: ## help
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
 .PHONY: local
-local: ## 本地构建
+local: ## 本地上传pypi
 	command -v twine || pip install twine
 	python setup.py sdist
 	twine upload dist/*
 
-help: ## help
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {sub("\\\\n",sprintf("\n%22c"," "), $$2);printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+.PHONY: image
+image: ## 构建docker镜像
+	docker build -t opencodo/python .
+	docker push opencodo/python
