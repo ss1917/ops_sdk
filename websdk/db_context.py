@@ -40,12 +40,12 @@ def get_db_url(dbkey):
     dbuser = db_conf['user']
     dbpwd = db_conf['pwd']
     dbhost = db_conf['host']
-    dbport = db_conf.get('port', 0)
+    dbport = db_conf.get('port', 3306)
     dbname = db_conf['name']
-    url = 'mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8'.format(user=dbuser, pwd=quote_plus(dbpwd),
-                                                                                    host=dbhost, port=dbport,
-                                                                                    dbname=dbname)
-    return url
+
+    return 'mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8'.format(user=dbuser, pwd=quote_plus(dbpwd),
+                                                                                     host=dbhost, port=dbport,
+                                                                                     dbname=dbname, poolclass=NullPool)
 
 
 class DBContext(object):

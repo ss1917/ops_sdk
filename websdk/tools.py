@@ -48,11 +48,13 @@ def is_mail(text, login_mail=None):
             return True
         else:
             return False
-
-    if re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', text):
+    p = re.compile(r"[^@]+@[^@]+\.[^@]+")
+    # if re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', text):
+    if p.match(text):
         return True
     else:
         return False
+
 
 def is_tel(tel):
     ### 检查是否是手机号
