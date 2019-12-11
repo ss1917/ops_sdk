@@ -44,6 +44,14 @@ class ErrorCode(IntEnum):
     config_item_notfound_error = 1002
 
 
+class ConstAPIS(IntEnum):
+    """ API枚举 """
+
+    admin_code = 'mg'
+    admin_users = '/v2/accounts/user/'
+    admin_user_tree = '/v2/accounts/user/tree/'
+
+
 class _const(object):
     def __setattr__(self, name, value):
         if name in self.__dict__:

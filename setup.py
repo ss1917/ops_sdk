@@ -9,7 +9,7 @@ from distutils.core import setup
 
 setup(
     name='opssdk',
-    version='0.0.16',
+    version='0.0.17',
     packages=['opssdk', 'opssdk.logs', 'opssdk.operate', 'opssdk.install', 'opssdk.get_info', 'opssdk.utils', 'websdk'],
     url='https://github.com/ss1917/ops_sdk/',
     license='',
