@@ -18,3 +18,7 @@ def model_to_dict(model):
         else:
             model_dict[column.name] = getattr(model, key, None)
     return model_dict
+
+
+def queryset_to_list(queryset):
+    return [model_to_dict(q) for q in queryset]
