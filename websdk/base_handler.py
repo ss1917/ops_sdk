@@ -8,7 +8,6 @@ from tornado.web import RequestHandler, HTTPError
 import jwt
 
 
-
 class BaseHandler(RequestHandler):
     def __init__(self, *args, **kwargs):
         self.new_csrf_key = str(shortuuid.uuid())
@@ -21,8 +20,8 @@ class BaseHandler(RequestHandler):
 
         # 验证客户端CSRF，如请求为GET，则不验证，否则验证。最后将写入新的key
         cache = get_cache()
-        if self.request.method not in ("GET", "HEAD", "OPTIONS"):
-        # if self.request.method not in ("GET", "HEAD", "OPTIONS") and self.application.settings.get("xsrf_cookies"):
+        if self.request.method not in ("GET", "HEAD", "OPTIONS") or self.request.headers['sdk_method'] == 'yes':
+            # if self.request.method not in ("GET", "HEAD", "OPTIONS") and self.application.settings.get("xsrf_cookies"):
             csrf_key = self.get_cookie('csrf_key')
             pipeline = cache.get_pipeline()
             result = cache.get(csrf_key, private=False, pipeline=pipeline)
@@ -42,13 +41,13 @@ class BaseHandler(RequestHandler):
                 auth_key = bytes(url_auth_key, encoding='utf-8')
 
         if not auth_key:
-        # if not auth_key or not self.get_secure_cookie("user_id") or not self.get_secure_cookie("username") :
+            # if not auth_key or not self.get_secure_cookie("user_id") or not self.get_secure_cookie("username") :
             # 没登录，就让跳到登陆页面
             raise HTTPError(401, 'auth failed')
 
         else:
-            #auth_token = AuthToken()
-            #user_info = auth_token.decode_auth_token(auth_key)  ### 验证权限
+            # auth_token = AuthToken()
+            # user_info = auth_token.decode_auth_token(auth_key)  ### 验证权限
             user_info = jwt.decode(auth_key, verify=False).get('data')
             if not user_info:
                 raise HTTPError(401, 'auth failed')
@@ -62,10 +61,10 @@ class BaseHandler(RequestHandler):
             if not self.user_id:
                 raise HTTPError(401, 'auth failed')
             else:
-                self.user_id = str(self.user_id )
+                self.user_id = str(self.user_id)
                 self.set_secure_cookie("user_id", self.user_id)
                 self.set_secure_cookie("nickname", self.nickname)
-                self.set_secure_cookie("username",  self.username)
+                self.set_secure_cookie("username", self.username)
                 self.set_secure_cookie("email", str(self.email))
         self.is_superuser = self.is_super
         ### SDK 不用处理鉴权
