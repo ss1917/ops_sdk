@@ -20,8 +20,9 @@ class BaseHandler(RequestHandler):
 
         # 验证客户端CSRF，如请求为GET，则不验证，否则验证。最后将写入新的key
         cache = get_cache()
-        if self.request.method not in ("GET", "HEAD", "OPTIONS") or self.request.headers.get('sdk_method') == 'yes':
-            # if self.request.method not in ("GET", "HEAD", "OPTIONS") and self.application.settings.get("xsrf_cookies"):
+        if self.request.method in ("GET", "HEAD", "OPTIONS") or self.request.headers.get('Sdk-Method'):
+            pass
+        else:
             csrf_key = self.get_cookie('csrf_key')
             pipeline = cache.get_pipeline()
             result = cache.get(csrf_key, private=False, pipeline=pipeline)
@@ -128,7 +129,7 @@ class BaseHandler(RequestHandler):
 
 class LivenessProbe(RequestHandler):
     def head(self, *args, **kwargs):
-        self.write("I'm OK")
+        self.write(dict(codo=0, msg="I'm OK"))
 
     def get(self, *args, **kwargs):
-        self.write("I'm OK")
+        self.write(dict(codo=0, msg="I'm OK"))

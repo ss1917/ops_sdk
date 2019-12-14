@@ -10,7 +10,8 @@ from distutils.core import setup
 setup(
     name='opssdk',
     version='0.0.19',
-    packages=['opssdk', 'opssdk.logs', 'opssdk.operate', 'opssdk.install', 'opssdk.get_info', 'opssdk.utils', 'websdk'],
+    packages=['opssdk', 'opssdk.logs', 'opssdk.operate', 'opssdk.install', 'opssdk.get_info', 'opssdk.utils', 'websdk'
+              ,'websdk.apis'],
     url='https://github.com/ss1917/ops_sdk/',
     license='',
     install_requires=['fire', 'shortuuid', 'pymysql==0.9.3', 'sqlalchemy==1.3.0', 'python3-pika==0.9.14', 'PyJWT',

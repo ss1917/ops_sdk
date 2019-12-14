@@ -26,6 +26,7 @@ class AcsClient:
             self.headers = {"Cookie": f"auth_key={auth_key}; csrf_key={csrf_key}", "X-Xsrftoken": csrf_key}
 
         self.endpoint = endpoint
+        self.headers['Sdk-Method'] = 'yes'
         self.request_timeout = request_timeout
 
     ###设置返回为json
@@ -74,7 +75,6 @@ class AcsClient:
         if not self.headers: self.headers = kwargs.get('headers', {})
 
         if kwargs['method'] not in ['GET', 'get']: self.headers['Content-Type'] = 'application/json'
-        self.headers['sdk_method'] = 'yes'
 
         return kwargs
 
