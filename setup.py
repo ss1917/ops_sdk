@@ -3,13 +3,13 @@
 """"
 author : shenshuo
 date   : 2018年2月5日13:37:54
-desc   : SDK
+desc   : OPS SDK
 """
 from distutils.core import setup
 
 setup(
     name='opssdk',
-    version='0.0.17',
+    version='0.0.19',
     packages=['opssdk', 'opssdk.logs', 'opssdk.operate', 'opssdk.install', 'opssdk.get_info', 'opssdk.utils', 'websdk'],
     url='https://github.com/ss1917/ops_sdk/',
     license='',
