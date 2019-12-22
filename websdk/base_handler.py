@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 # -*-coding:utf-8-*-
+""""
+Contact : 191715030@qq.com
+Author : shenshuo
+Date   : 2018年2月5日13:37:54
+Desc   : 处理API请求
+"""
 
+import jwt
 import shortuuid
 from .cache import get_cache
 from tornado.web import RequestHandler, HTTPError
-# from .jwt_token import AuthToken
-import jwt
+from .jwt_token import AuthToken
 
 
 class BaseHandler(RequestHandler):
@@ -13,6 +19,7 @@ class BaseHandler(RequestHandler):
         self.new_csrf_key = str(shortuuid.uuid())
         self.user_id, self.username, self.nickname, self.email, self.is_super = None, None, None, None, False
         self.is_superuser = self.is_super
+        self.token_verify = False
 
         super(BaseHandler, self).__init__(*args, **kwargs)
 
@@ -47,9 +54,11 @@ class BaseHandler(RequestHandler):
             raise HTTPError(401, 'auth failed')
 
         else:
-            # auth_token = AuthToken()
-            # user_info = auth_token.decode_auth_token(auth_key)  ### 验证权限
-            user_info = jwt.decode(auth_key, verify=False).get('data')
+            if self.token_verify:
+                auth_token = AuthToken()
+                user_info = auth_token.decode_auth_token(auth_key)
+            else:
+                user_info = jwt.decode(auth_key, verify=False).get('data')
             if not user_info:
                 raise HTTPError(401, 'auth failed')
 
@@ -68,20 +77,7 @@ class BaseHandler(RequestHandler):
                 self.set_secure_cookie("username", self.username)
                 self.set_secure_cookie("email", str(self.email))
         self.is_superuser = self.is_super
-        ### SDK 不用处理鉴权
-        #         my_verify = MyVerify(self.user_id)
-        #
-        #
-        # # ### 如果不是超级管理员,开始鉴权
-        # if not self.is_superuser:
-        #     # 没权限，就让跳到权限页面 0代表有权限，1代表没权限
-        #     if not my_verify.get_verify(self.request.method, self.request.uri):
-        #         '''如果没有权限，就刷新一次权限'''
-        #         my_verify.write_verify()
-        #
-        #     if not my_verify.get_verify(self.request.method, self.request.uri) != 0:
-        #         raise HTTPError(403, 'request forbidden!')
-        ### 写入日志 改为网关收集
+
 
     def get_current_user(self):
         return self.username
@@ -97,6 +93,27 @@ class BaseHandler(RequestHandler):
 
     def is_superuser(self):
         return self.is_superuser
+
+    @property
+    def request_username(self):
+        return self.username
+
+    @property
+    def request_user_id(self):
+        return self.user_id
+
+    @property
+    def request_nickname(self):
+        return self.nickname
+
+    @property
+    def request_email(self):
+        return self.email
+
+    @property
+    def request_is_superuser(self):
+        return self.is_superuser
+
 
     def write_error(self, status_code, **kwargs):
         if status_code == 404:
