@@ -17,13 +17,13 @@ logger = logging.getLogger(__name__)
 
 
 class AcsClient:
-    def __init__(self, request=None, auth_key=None, csrf_key=None, headers=None, endpoint=None, request_timeout=5):
+    def __init__(self, request=None, auth_key=None, headers=None, endpoint=None, request_timeout=5):
         if request:
             self.headers = request.headers
         elif headers:
             self.headers = headers
         else:
-            self.headers = {"Cookie": f"auth_key={auth_key}; csrf_key={csrf_key}", "X-Xsrftoken": csrf_key}
+            self.headers = {"Cookie": 'auth_key={}'.format(auth_key)}
 
         self.endpoint = endpoint
         self.headers['Sdk-Method'] = 'yes'
@@ -80,7 +80,39 @@ class AcsClient:
 
     @property
     def help(self):
-        help_info = """ """
+        help_info = """
+        headers = {"Cookie": 'auth_key={}'.format(auth_key)}
+        ### 三种实例化方式
+        1. client = AcsClient(endpoint=endpoint, headers=headers)
+        2. client = AcsClient(endpoint=endpoint, request=self.request)
+        3. client = AcsClient(endpoint=endpoint, auth_key=auth_key)
+        
+        调用： 传入api 的参数，可以参考下面示例
+        
+        同步
+        response = client.do_action(**api_set.get_users) 
+        print(json.loads(response))
+        
+        异步
+        # import asyncio
+        # loop = asyncio.get_event_loop()
+        # ### 使用gather或者wait可以同时注册多个任务，实现并发
+        # # task1 = asyncio.ensure_future(coroutine1)
+        # # task2 = asyncio.ensure_future(coroutine2)
+        # # tasks = asyncio.gather(*[task1, task2])
+        # # loop.run_until_complete(tasks)
+        # ### 单个使用
+        # response = loop.run_until_complete(client.do_action_with_async(**api_set.get_users))
+        # response = json.loads(response)
+        # print(response)
+        # loop.close()
+        
+        tornado 项目内必须使用异步，不过可以直接使用
+        #client.do_action_with_async(**api_set.get_users)
+        # response = json.loads(response)
+        # print(response)
+        
+         """
         return help_info
 
 
