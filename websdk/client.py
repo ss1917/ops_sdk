@@ -26,7 +26,7 @@ class AcsClient:
             self.headers = {"Cookie": 'auth_key={}'.format(auth_key)}
 
         self.endpoint = endpoint
-        self.headers['Sdk-Method'] = 'yes'
+        self.headers['Sdk-Method'] = 'zQtY4sw7sqYspVLrqV'
         self.request_timeout = request_timeout
 
     ###设置返回为json
