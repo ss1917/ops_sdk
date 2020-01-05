@@ -78,8 +78,8 @@ class AcsClient:
 
         return kwargs
 
-    @property
-    def help(self):
+    @staticmethod
+    def help():
         help_info = """
         headers = {"Cookie": 'auth_key={}'.format(auth_key)}
         ### 三种实例化方式

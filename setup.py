@@ -7,9 +7,11 @@ desc   : OPS SDK
 """
 from distutils.core import setup
 
+__version__ = '0.0.21'
+
 setup(
     name='opssdk',
-    version='0.0.20',
+    version=__version__,
     packages=['opssdk', 'opssdk.logs', 'opssdk.operate', 'opssdk.install', 'opssdk.get_info', 'opssdk.utils', 'websdk'
               ,'websdk.apis'],
     url='https://github.com/ss1917/ops_sdk/',
