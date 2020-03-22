@@ -10,7 +10,7 @@ from .cloud.qcloud_api import QCloudApiOpt
 from .cloud.ucloud_api import UCloudApi
 
 
-def domain_factory(cloud):
+def cloud_factory(cloud):
     if cloud == 'aliyun':
         return None
 
