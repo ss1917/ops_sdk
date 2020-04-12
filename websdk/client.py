@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 class AcsClient:
-    def __init__(self, request=None, auth_key=None, headers=None, endpoint=None, request_timeout=5):
+    def __init__(self, request=None, auth_key=None, headers=None, endpoint='http://gw.opendevops.cn',
+                 request_timeout=5):
         if request:
             self.headers = request.headers
         elif headers:

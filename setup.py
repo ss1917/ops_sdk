@@ -7,7 +7,7 @@ desc   : OPS SDK
 """
 from distutils.core import setup
 
-__version__ = '0.0.21'
+__version__ = '0.0.22'
 
 setup(
     name='opssdk',
@@ -16,10 +16,10 @@ setup(
               ,'websdk.apis'],
     url='https://github.com/ss1917/ops_sdk/',
     license='',
-    install_requires=['fire==0.3.0', 'shortuuid', 'pymysql==0.9.3', 'sqlalchemy==1.3.0', 'python3-pika==0.9.14', 'PyJWT',
+    install_requires=['fire==0.3.1', 'shortuuid', 'pymysql==0.9.3', 'sqlalchemy==1.3.0', 'python3-pika==0.9.14', 'PyJWT',
                       'Crypto==1.4.1', 'requests', 'redis==2.10.6', 'tornado>=5.0',
                       'aliyun-python-sdk-core-v3==2.8.6', 'aliyun-python-sdk-dysmsapi', 'python-dateutil==2.7.5',
-                      'ldap3==2.6', 'pycryptodome'],
+                      'ldap3==2.6','pydantic==1.4', 'pycryptodome'],
     author='shenshuo',
     author_email='191715030@qq.com',
     description='SDK of the operation and maintenance script'
