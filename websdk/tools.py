@@ -173,6 +173,7 @@ def deco(cls, release=False):
 
     do_func()
     """
+
     def _deco(func):
         def __deco(*args, **kwargs):
             if not cls.get_lock(cls): return False
@@ -185,3 +186,7 @@ def deco(cls, release=False):
         return __deco
 
     return _deco
+
+
+def now_timestamp() -> int:
+    return int(round(time.time() * 1000))
