@@ -3,7 +3,7 @@ help: ## help
 
 .PHONY: local
 local: ## 本地上传pypi
-	command -v twine || pip install twine
+	command -v twine || pip install twine -i https://mirrors.51talk.com/pypi/simple  
 	python setup.py sdist
 	twine upload dist/*
 

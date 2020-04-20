@@ -9,6 +9,7 @@ role   : 工具类
 import sys
 import re
 import time
+import redis
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
@@ -48,11 +49,13 @@ def is_mail(text, login_mail=None):
             return True
         else:
             return False
-
-    if re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', text):
+    p = re.compile(r"[^@]+@[^@]+\.[^@]+")
+    # if re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', text):
+    if p.match(text):
         return True
     else:
         return False
+
 
 def is_tel(tel):
     ### 检查是否是手机号
@@ -61,6 +64,7 @@ def is_tel(tel):
         return True
     else:
         return False
+
 
 def check_contain_chinese(check_str):
     ### 检查是否包含汉字
@@ -125,3 +129,64 @@ class RunningProcess:
             # print("execute timeout, execute time {}, it's killed.".format(duration))
             return True
         return False
+
+
+class RedisLock(object):
+    def __init__(self, key, **conf):
+        self.rdcon = redis.Redis(host=conf.get('host'), port=conf.get('port'), password=conf.get('password'),
+                                 db=conf.get('db', 0))
+        self._lock = 0
+        self.lock_key = "{}_dynamic_test".format(key)
+
+    @staticmethod
+    def get_lock(cls, key_timeout=59, func_timeout=59):
+        ### key过期时间为一分钟，30秒内key任务没有完成则返回失败
+        start_time = time.time()
+        while cls._lock != 1:
+            timestamp = time.time() + key_timeout + 1
+            cls._lock = cls.rdcon.setnx(cls.lock_key, timestamp)
+            lock_key = cls.rdcon.get(cls.lock_key)
+
+            if time.time() - start_time > func_timeout:
+                return False
+            if cls._lock == 1 or (
+                    time.time() > float(lock_key) and time.time() > float(cls.rdcon.getset(cls.lock_key, timestamp))):
+                return True
+            else:
+                time.sleep(1)
+
+    @staticmethod
+    def release(cls):
+        ### 释放lock
+        lock_key = cls.rdcon.get(cls.lock_key)
+        if lock_key and time.time() < float(lock_key): cls.rdcon.delete(cls.lock_key)
+
+
+def deco(cls, release=False):
+    """ 示例
+    @deco(RedisLock("redis_lock_key", **dict(host='127.0.0.1', port=6379, password="", db=1)))
+    def do_func():
+        print("the func called.")
+        time.sleep(50)
+        print("the func end")
+
+
+    do_func()
+    """
+
+    def _deco(func):
+        def __deco(*args, **kwargs):
+            if not cls.get_lock(cls): return False
+            try:
+                return func(*args, **kwargs)
+            finally:
+                ### 执行完就释放key，默认不释放
+                if release: cls.release(cls)
+
+        return __deco
+
+    return _deco
+
+
+def now_timestamp() -> int:
+    return int(round(time.time() * 1000))

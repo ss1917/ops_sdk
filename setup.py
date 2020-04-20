@@ -3,7 +3,7 @@
 """"
 author : shenshuo
 date   : 2018年2月5日13:37:54
-desc   : SDK
+desc   : OPS SDK
 """
 
 import sys
@@ -28,10 +28,10 @@ def get_data_files():
 
 
 def get_install_requires():
-    requires = ['fire', 'shortuuid', 'pymysql==0.9.3', 'sqlalchemy==1.3.0', 'python3-pika==0.9.14', 'PyJWT',
-                      'Crypto==1.4.1', 'requests', 'redis==2.10.6', 'tornado==5.0',
+    requires = ['fire==0.3.1', 'shortuuid', 'pymysql==0.9.3', 'sqlalchemy==1.3.0', 'python3-pika==0.9.14', 'PyJWT',
+                      'Crypto==1.4.1', 'requests', 'redis==2.10.6', 'tornado>=5.0',
                       'aliyun-python-sdk-core-v3==2.8.6', 'aliyun-python-sdk-dysmsapi', 'python-dateutil==2.7.5',
-                      'ldap3==2.6', 'pycryptodome']
+                      'ldap3==2.6','pydantic==1.4', 'pycryptodome']
     # if sys.platform.startswith('win'):
     #    requires.append('bottle')
     return requires
@@ -41,7 +41,8 @@ setup(
     name='opssdk',
     version=version,
     description="运维SDK",
-    packages=['opssdk', 'opssdk.logs', 'opssdk.operate', 'opssdk.install', 'opssdk.get_info', 'opssdk.utils', 'websdk'],
+    packages=['opssdk', 'opssdk.logs', 'opssdk.operate', 'opssdk.install', 'opssdk.get_info', 'opssdk.utils', 'websdk'
+              ,'websdk.apis'],
     url='https://github.com/ss1917/ops_sdk/',
     license='GPLv3',
     keywords="ops,opencodo,devops",
