@@ -3,11 +3,6 @@ help: ## help
 
 .PHONY: local
 local: ## 本地上传pypi
-	command -v twine || pip install twine -i https://mirrors.51talk.com/pypi/simple  
+	command -v twine || pip install twine -i https://pypi.tuna.tsinghua.edu.cn/simple
 	python setup.py sdist
 	twine upload dist/*
-
-.PHONY: image
-image: ## 构建docker镜像
-	docker build -t opencodo/python .
-	docker push opencodo/python

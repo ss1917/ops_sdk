@@ -12,13 +12,14 @@ import re
 from io import open
 from distutils.core import setup
 
+version = '0.0.23'
+
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('Finit requires at least Python 2.7 or 3.6 to run.')
     sys.exit(1)
 
-with open(os.path.join('.', '__init__.py'), encoding='utf-8') as f:
-    version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", f.read(), re.M).group(1)
-
+# with open(os.path.join('.', '__init__.py'), encoding='utf-8') as f:
+#     version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", f.read(), re.M).group(1)
 
 def get_data_files():
     data_files = [
