@@ -12,11 +12,12 @@ import re
 from io import open
 from distutils.core import setup
 
-version = '0.0.23'
+version = '0.0.24'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('Finit requires at least Python 2.7 or 3.6 to run.')
     sys.exit(1)
+
 
 # with open(os.path.join('.', '__init__.py'), encoding='utf-8') as f:
 #     version = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", f.read(), re.M).group(1)
@@ -30,9 +31,9 @@ def get_data_files():
 
 def get_install_requires():
     requires = ['fire==0.3.1', 'shortuuid', 'pymysql==0.9.3', 'sqlalchemy==1.3.0', 'python3-pika==0.9.14', 'PyJWT',
-                      'Crypto==1.4.1', 'requests', 'redis==2.10.6', 'tornado>=5.0',
-                      'aliyun-python-sdk-core-v3==2.8.6', 'aliyun-python-sdk-dysmsapi', 'python-dateutil==2.7.5',
-                      'ldap3==2.6','pydantic==1.4', 'pycryptodome']
+                'Crypto==1.4.1', 'requests', 'redis==2.10.6', 'tornado>=5.0',
+                'aliyun-python-sdk-core-v3==2.8.6', 'aliyun-python-sdk-dysmsapi', 'python-dateutil==2.7.5',
+                'ldap3==2.6', 'pydantic==1.4', 'pycryptodome', 'rsa==4.0']
     # if sys.platform.startswith('win'):
     #    requires.append('bottle')
     return requires
@@ -43,7 +44,7 @@ setup(
     version=version,
     description="运维SDK",
     packages=['opssdk', 'opssdk.logs', 'opssdk.operate', 'opssdk.install', 'opssdk.get_info', 'opssdk.utils', 'websdk'
-              ,'websdk.apis'],
+        , 'websdk.apis'],
     url='https://github.com/ss1917/ops_sdk/',
     license='GPLv3',
     keywords="ops,opencodo,devops",
