@@ -38,6 +38,13 @@ class AcsClient:
 
         return response.text
 
+    ### 返回完整信息
+    def do_action_v2(self, **kwargs):
+        kwargs = self.with_params_data_url(**kwargs)
+        response = requests.request(kwargs.get('method'), kwargs.get('url'), headers=self.headers,
+                                    data=kwargs.get('body'), timeout=self.request_timeout)
+        return response
+
     async def do_action_with_async(self, **kwargs):
 
         body = await self._implementation_of_do_action(**kwargs)
