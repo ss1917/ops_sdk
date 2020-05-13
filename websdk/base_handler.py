@@ -78,7 +78,6 @@ class BaseHandler(RequestHandler):
                 self.set_secure_cookie("email", str(self.email))
         self.is_superuser = self.is_super
 
-
     def get_current_user(self):
         return self.username
 
@@ -114,27 +113,29 @@ class BaseHandler(RequestHandler):
     def request_is_superuser(self):
         return self.is_superuser
 
-
     def write_error(self, status_code, **kwargs):
+        error_trace_list = traceback.format_exception(*kwargs.get("exc_info"))
         if status_code == 404:
             self.set_status(status_code)
             return self.finish('找不到相关路径-404')
 
         elif status_code == 400:
             self.set_status(status_code)
-            return self.finish('bad request.')
+            return self.finish('bad request...')
 
         elif status_code == 402:
             self.set_status(status_code)
-            return self.finish('csrf error.')
+            return self.finish('csrf error...')
 
         elif status_code == 403:
             self.set_status(status_code)
             return self.finish('Sorry, you have no permission. Please contact the administrator')
 
-        elif status_code == 500:
+        if status_code == 500:
             self.set_status(status_code)
-            return self.finish('服务器内部错误')
+            for line in error_trace_list:
+                self.write(str(line))
+            self.finish()
 
         elif status_code == 401:
             self.set_status(status_code)
@@ -146,7 +147,7 @@ class BaseHandler(RequestHandler):
 
 class LivenessProbe(RequestHandler):
     def head(self, *args, **kwargs):
-        self.write(dict(codo=0, msg="I'm OK"))
+        self.write(dict(code=0, msg="I'm OK"))
 
     def get(self, *args, **kwargs):
-        self.write(dict(codo=0, msg="I'm OK"))
+        self.write(dict(code=0, msg="I'm OK"))
