@@ -14,7 +14,8 @@ from .error import ConfigError
 
 
 class MessageQueueBase(object):
-    def __init__(self, exchange, exchange_type, routing_key='', queue_name='', no_ack=False, mq_key=''):
+    def __init__(self, exchange, exchange_type, routing_key='', routing_keys=None, queue_name='', no_ack=False,
+                 mq_key=''):
         mq_config = configs[const.MQ_CONFIG_ITEM][const.DEFAULT_MQ_KEY]
         if const.MQ_ADDR not in mq_config:
             raise ConfigError(const.MQ_ADDR)
@@ -34,6 +35,7 @@ class MessageQueueBase(object):
         self.__exchange = exchange
         self.__exchange_type = exchange_type
         self.__routing_key = routing_key
+        self.__routing_keys = routing_keys
         self.__queue_name = queue_name
         self.__no_ack = no_ack
 
@@ -45,7 +47,11 @@ class MessageQueueBase(object):
             result = channel.queue_declare(queue=self.__queue_name, durable=True)
         else:
             result = channel.queue_declare(exclusive=True)
-        channel.queue_bind(exchange=self.__exchange, queue=result.method.queue, routing_key=self.__routing_key)
+        if self.__routing_keys and isinstance(self.__routing_keys, list):
+            for binding_key in self.__routing_keys:
+                channel.queue_bind(exchange=self.__exchange, queue=result.method.queue, routing_key=binding_key)
+        else:
+            channel.queue_bind(exchange=self.__exchange, queue=result.method.queue, routing_key=self.__routing_key)
 
         channel.basic_qos(prefetch_count=1)
         channel.basic_consume(self.call_back, queue=result.method.queue, no_ack=self.__no_ack)
