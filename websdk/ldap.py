@@ -54,10 +54,10 @@ class LdapApi:
                                    raise_exceptions=False)
                 conn2.bind()
                 if conn2.result["description"] == "success":
-                    if attr_dict["email"]:
-                        email = attr_dict["email"][0]
-                    elif attr_dict["mail"]:
-                        email = attr_dict["mail"][0]
+                    if 'email' in attr_dict:
+                        email = attr_dict["email"][0] if isinstance(attr_dict["email"], list) else attr_dict["email"]
+                    elif 'mail' in attr_dict:
+                        email = attr_dict["mail"][0] if isinstance(attr_dict["mail"], list) else attr_dict["mail"]
                     else:
                         email = None
 
@@ -73,7 +73,7 @@ class LdapApi:
 
 
 if __name__ == "__main__":
-    obj = LdapApi('172.16.0.102', 'cn=Manager,DC=shinezone,DC=com', '070068')
+    obj = LdapApi('172.16.0.102', 'cn=Manager,DC=sz,DC=com', '070068')
     print(obj.ldap_server_test())
     print('____________')
-    print(obj.ldap_auth("yanghongfei", "123456", 'ou=opendevops,dc=shinezone,dc=com', 'cn'))
+    print(obj.ldap_auth("yanghongfei", "123456", 'ou=opendevops,dc=sz,dc=com', 'cn'))
