@@ -139,7 +139,7 @@ class RedisLock(object):
             __redis_info = configs.get(const.REDIS_CONFIG_ITEM, None).get(const.DEFAULT_RD_KEY, None)
             conf = dict(host=__redis_info.get(const.RD_HOST_KEY), port=__redis_info.get(const.RD_PORT_KEY, 6379),
                         db=__redis_info.get(const.RD_DB_KEY, 0), password=__redis_info.get(const.RD_PASSWORD_KEY, None))
-            
+
         self.rdcon = redis.Redis(host=conf.get('host'), port=conf.get('port'), password=conf.get('password'),
                                  db=conf.get('db', 0))
         self._lock = 0
