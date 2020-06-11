@@ -8,6 +8,7 @@ Desc    :
 """
 
 import os
+import json
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -158,6 +159,32 @@ def mail_login(user, password, mail_server='smtp.exmail.qq.com'):
         print(user, e)
         return False
 
+def get_contain_dict(src_data: dict, dst_data: dict) -> bool:
+    if not isinstance(src_data, dict):
+        try:
+            src_data = json.loads(src_data)
+        except Exception as err:
+            return False
+
+    if not isinstance(dst_data, dict):
+        try:
+            dst_data = json.loads(dst_data)
+        except Exception as err:
+            return False
+
+    # src_key = list(src_data.keys())
+    # dst_key = list(dst_data.keys())
+    pd = [False for c in src_data.keys() if c not in dst_data]
+    if pd:
+        return False
+    else:
+        src_val = list(src_data.values())
+        dst_val = list(dst_data.values())
+        pds = [False for c in src_val if c not in dst_val]
+        if pds:
+            return False
+        else:
+            return True
 
 if __name__ == '__main__':
     pass

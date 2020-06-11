@@ -8,6 +8,7 @@ Desc   : models类
 
 from datetime import datetime
 from sqlalchemy.orm import class_mapper
+from .utils import get_contain_dict
 
 
 def model_to_dict(model):
@@ -20,5 +21,7 @@ def model_to_dict(model):
     return model_dict
 
 
-def queryset_to_list(queryset):
+def queryset_to_list(queryset, **kwargs) -> list:
+    if kwargs:
+        return [model_to_dict(q) for q in queryset if get_contain_dict(kwargs, model_to_dict(q))]
     return [model_to_dict(q) for q in queryset]
