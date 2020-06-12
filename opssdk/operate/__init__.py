@@ -282,7 +282,7 @@ if __name__ == "__main__":
     cryto_info = MyCryptV3.to_encrypt(ceshiyixia, public_path='public.pem', public_key=None)
     print(cryto_info)
 
-    ## 私钥加密
+    ## 私钥解密
     haha_info = MyCryptV3.to_decrypt(cryto_info, private_path='private.pem', private_key=None)
     print(haha_info)
 
@@ -300,6 +300,6 @@ if __name__ == "__main__":
     cryto_info = MyCryptV3.to_encrypt(ceshiyixia, public_path=None, public_key=public_key)
     print(cryto_info)
 
-    ## 私钥加密
+    ## 私钥解密
     haha_info = MyCryptV3.to_decrypt(cryto_info, private_path=None, private_key=private_key)
     print(haha_info)
