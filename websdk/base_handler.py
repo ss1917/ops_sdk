@@ -94,6 +94,21 @@ class BaseHandler(RequestHandler):
         return self.is_superuser
 
     @property
+    def request_resource_group(self):
+        if not self.resource_group:
+            resource_group = self.get_secure_cookie("resource_group")
+            if resource_group and isinstance(resource_group, bytes):  return bytes.decode(resource_group)
+            return None
+        return self.resource_group
+
+    @property
+    def request_resource_map(self):
+        if self.request_resource_group in [None, 'all', '所有项目']:
+            return dict()
+        else:
+            return dict(resource_group=self.request_resource_group)
+
+    @property
     def request_username(self):
         return self.username
 

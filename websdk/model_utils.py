@@ -23,6 +23,6 @@ def model_to_dict(model):
 
 def queryset_to_list(queryset, **kwargs) -> list:
     if kwargs:
-        if kwargs.get('resource_group') in [None, 'all', '所有项目']: kwargs.pop('resource_group')  ### 资源过滤
+        # if kwargs.get('resource_group') in [None, 'all', '所有项目']: kwargs.pop('resource_group')  ### 资源过滤
         return [model_to_dict(q) for q in queryset if get_contain_dict(kwargs, model_to_dict(q))]
     return [model_to_dict(q) for q in queryset]
