@@ -8,9 +8,11 @@ Desc    :
 """
 
 import os
+import time
 import json
 import socket
 import smtplib
+from .consts import const
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from aliyunsdkdysmsapi.request.v20170525 import SendSmsRequest, QuerySendDetailsRequest
@@ -189,11 +191,31 @@ def get_contain_dict(src_data: dict, dst_data: dict) -> bool:
             return True
 
 
-def get_node_address():
-    if os.getenv('NODE_ADDRESS'): return os.getenv('NODE_ADDRESS')
+def now_time_stamp() -> int:
+    """
+    秒时间戳
+    :return: int
+    """
+    return int(time.time())
 
+
+### 这个地址具有唯一性
+def get_node_address():
+    node_name = os.getenv(const.NODE_ADDRESS) if os.getenv(const.NODE_ADDRESS) else socket.gethostname()
     mac = uuid.UUID(int=uuid.getnode()).hex[-12:]
-    return f'{socket.gethostname()}--mac-{mac}'
+    return f'{node_name}--mac-{mac}'
+
+
+### 这个地址是默认可以通配的
+def get_node_topic(node=False):
+    if not node:
+        if os.getenv(const.NODE_ADDRESS): return os.getenv(const.NODE_ADDRESS) + '#'
+        mac = uuid.UUID(int=uuid.getnode()).hex[-12:]
+        return f'{socket.gethostname()}--mac-{mac}#'
+    else:
+        if os.getenv(const.NODE_ADDRESS): return os.getenv(const.NODE_ADDRESS)
+        mac = uuid.UUID(int=uuid.getnode()).hex[-12:]
+        return f'{socket.gethostname()}--mac-{mac}'
 
 
 if __name__ == '__main__':
