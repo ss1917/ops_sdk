@@ -159,3 +159,19 @@ const.TOKEN_EXP_TIME = "TOKEN_EXP_TIME"
 
 ### 全局 二次认证
 const.MFA_GLOBAL = 'MFA_GLOBAL'
+
+### 任务状态
+const.STATE_NEW = '0'
+const.STATE_WAIT = '1'
+const.STATE_RUNNING = '2'
+const.STATE_SUCCESS = '3'
+const.STATE_ERROR = '4'
+const.STATE_MANUAL = '5'
+const.STATE_BREAK = '6'
+const.STATE_TIMING = '7'
+const.STATE_UNKNOWN = '8'
+const.STATE_FAIL = '9'
+const.EXEC_TIMEOUT = 1800
+
+### 节点地址
+const.NODE_ADDRESS = 'NODE_ADDRESS'
