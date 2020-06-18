@@ -9,6 +9,7 @@ Desc    :
 
 import os
 import json
+import socket
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -159,6 +160,7 @@ def mail_login(user, password, mail_server='smtp.exmail.qq.com'):
         print(user, e)
         return False
 
+
 def get_contain_dict(src_data: dict, dst_data: dict) -> bool:
     if not isinstance(src_data, dict):
         try:
@@ -185,6 +187,14 @@ def get_contain_dict(src_data: dict, dst_data: dict) -> bool:
             return False
         else:
             return True
+
+
+def get_node_address():
+    if os.getenv('NODE_ADDRESS'): return os.getenv('NODE_ADDRESS')
+
+    mac = uuid.UUID(int=uuid.getnode()).hex[-12:]
+    return f'{socket.gethostname()}--mac-{mac}'
+
 
 if __name__ == '__main__':
     pass
