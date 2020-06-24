@@ -66,6 +66,9 @@ class MessageQueueBase(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__connection.close()
 
+    def close_channel(self):
+        self.__connection.close()
+
     def create_channel(self):
         credentials = pika.PlainCredentials(self.user, self.pwd)
         self.__connection = pika.BlockingConnection(
