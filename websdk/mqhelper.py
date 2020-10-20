@@ -39,10 +39,10 @@ class MessageQueueBase(object):
         self.__queue_name = queue_name
         self.__no_ack = no_ack
 
-    def start_consuming(self):
+    def start_consuming(self, exchange_durable=False):
         channel = self.create_channel()
 
-        channel.exchange_declare(exchange=self.__exchange, exchange_type=self.__exchange_type)
+        channel.exchange_declare(exchange=self.__exchange, exchange_type=self.__exchange_type, durable=exchange_durable)
         if self.__queue_name:
             result = channel.queue_declare(queue=self.__queue_name, durable=True)
         else:
