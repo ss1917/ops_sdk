@@ -91,8 +91,8 @@ class MessageQueueBase(object):
     def on_message(self, body):
         pass
 
-    def publish_message(self, body, durable=True):
-        self.__channel.exchange_declare(exchange=self.__exchange, exchange_type=self.__exchange_type)
+    def publish_message(self, body, durable=True, exchange_durable=False):
+        self.__channel.exchange_declare(exchange=self.__exchange, exchange_type=self.__exchange_type, durable=exchange_durable)
         if self.__queue_name:
             result = self.__channel.queue_declare(queue=self.__queue_name)
         else:
