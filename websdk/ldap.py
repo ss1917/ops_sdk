@@ -71,6 +71,48 @@ class LdapApi:
         else:
             return False, None, None
 
+    def ldap_auth_v2(self, username, password, search_base, search_filter='cn'):
+        if not self.ldap_server_test(): return False, None, None
+
+        conn = Connection(self.ldap_server, user=self._ldap_admin_dn, password=self._ldap_admin_password,
+                          check_names=True, lazy=False, raise_exceptions=False)
+        conn.open()
+        conn.bind()
+
+        res = conn.search(search_base=search_base, search_filter=f'({search_filter}={username})',
+                          search_scope=SUBTREE, attributes=[search_filter, 'email', 'mail'], paged_size=5)
+
+        if not res: return False, None, None
+
+        entry = conn.response[0]
+        dn = entry['dn']
+        attr_dict = entry['attributes']
+
+        # check password by dn
+        try:
+            conn2 = Connection(self.ldap_server, user=dn, password=password, check_names=True, lazy=False,
+                               raise_exceptions=False)
+            conn2.bind()
+            if conn2.result["description"] == "success":
+                try:
+                    if 'email' in attr_dict:
+                        email = attr_dict["email"][0] if isinstance(attr_dict["email"], list) else attr_dict["email"]
+                    elif 'mail' in attr_dict:
+                        email = attr_dict["mail"][0] if isinstance(attr_dict["mail"], list) else attr_dict["mail"]
+                    else:
+                        email = None
+                except Exception as err:
+                    print(f"email fail, {err}")
+                    email = None
+
+                return True, attr_dict[search_filter][0], email
+            else:
+                print("auth fail")
+                return False, None, None
+        except Exception as e:
+            print("auth fail {}".format(e))
+            return False, None, None
+
 
 if __name__ == "__main__":
     obj = LdapApi('172.16.0.102', 'cn=Manager,DC=sz,DC=com', '070068')
