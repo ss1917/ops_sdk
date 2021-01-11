@@ -54,10 +54,14 @@ class LdapApi:
                                    raise_exceptions=False)
                 conn2.bind()
                 if conn2.result["description"] == "success":
-                    if 'email' in attr_dict:
-                        email = attr_dict["email"][0] if isinstance(attr_dict["email"], list) else attr_dict["email"]
-                    elif 'mail' in attr_dict:
-                        email = attr_dict["mail"][0] if isinstance(attr_dict["mail"], list) else attr_dict["mail"]
+                    if 'email' in attr_dict and isinstance(attr_dict["email"], list) and attr_dict["email"]:                        
+                        email = attr_dict["email"][0]
+                    elif 'email' in attr_dict and not isinstance(attr_dict["email"], list) and attr_dict["email"]:                        
+                        email = attr_dict["email"]
+                    elif 'mail' in attr_dict and isinstance(attr_dict["mail"], list) and attr_dict["mail"]:
+                        email = attr_dict["mail"][0]
+                    elif 'mail' in attr_dict and not isinstance(attr_dict["mail"], list) and attr_dict["mail"]:                        
+                        email = attr_dict["mail"]
                     else:
                         email = None
 
@@ -95,10 +99,14 @@ class LdapApi:
             conn2.bind()
             if conn2.result["description"] == "success":
                 try:
-                    if 'email' in attr_dict:
-                        email = attr_dict["email"][0] if isinstance(attr_dict["email"], list) else attr_dict["email"]
-                    elif 'mail' in attr_dict:
-                        email = attr_dict["mail"][0] if isinstance(attr_dict["mail"], list) else attr_dict["mail"]
+                    if 'email' in attr_dict and isinstance(attr_dict["email"], list) and attr_dict["email"]:                        
+                        email = attr_dict["email"][0]
+                    elif 'email' in attr_dict and not isinstance(attr_dict["email"], list) and attr_dict["email"]:                        
+                        email = attr_dict["email"]
+                    elif 'mail' in attr_dict and isinstance(attr_dict["mail"], list) and attr_dict["mail"]:
+                        email = attr_dict["mail"][0]
+                    elif 'mail' in attr_dict and not isinstance(attr_dict["mail"], list) and attr_dict["mail"]:                        
+                        email = attr_dict["mail"]
                     else:
                         email = None
                 except Exception as err:
