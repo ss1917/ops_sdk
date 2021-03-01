@@ -33,7 +33,7 @@ def get_install_requires():
     requires = ['fire==0.3.1', 'shortuuid==1.0.1', 'pymysql==0.9.3', 'sqlalchemy==1.3.0', 'python3-pika==0.9.14', 'PyJWT==1.7.1',
                 'Crypto==1.4.1', 'requests==2.24.0', 'redis==2.10.6', 'tornado>=5.0',
                 'aliyun-python-sdk-core-v3==2.13.11', 'aliyun-python-sdk-dysmsapi', 'python-dateutil==2.7.5',
-                'ldap3==2.6', 'pydantic==1.4', 'pycryptodome==3.9.9', 'rsa==4.0']
+                'ldap3==2.6', 'pydantic==1.8', 'pycryptodome==3.9.9', 'rsa==4.0']
     # if sys.platform.startswith('win'):
     #    requires.append('bottle')
     return requires
