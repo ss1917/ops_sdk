@@ -12,7 +12,7 @@ import re
 from io import open
 from distutils.core import setup
 
-version = '0.0.41'
+version = '0.0.42'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('Finit requires at least Python 2.7 or 3.6 to run.')
@@ -44,7 +44,7 @@ setup(
     version=version,
     description="运维SDK",
     packages=['opssdk', 'opssdk.logs', 'opssdk.operate', 'opssdk.install', 'opssdk.get_info', 'opssdk.utils', 'websdk'
-        , 'websdk.apis'],
+        , 'websdk.apis','websdk.cloud','websdk.utils'],
     url='https://github.com/ss1917/ops_sdk/',
     license='GPLv3',
     keywords="ops,opencodo,devops",
