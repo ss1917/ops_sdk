@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Version : 0.0.1
-Contact : 191715030@qq.com
-Author  : shenshuo
-Date    : 2021/3/1 16:56 
-Desc    : 解释一下吧
-"""
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""
 Contact : 191715030@qq.com
 Author  : shenshuo
 Date    : 2018/12/11
@@ -21,7 +12,7 @@ import time
 import json
 import socket
 import smtplib
-from .consts import const
+from ..consts import const
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from aliyunsdkdysmsapi.request.v20170525 import SendSmsRequest, QuerySendDetailsRequest
