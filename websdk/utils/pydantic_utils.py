@@ -15,6 +15,11 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.orm.properties import ColumnProperty
 
 
+### 删除的时候一般只有id
+class PydanticDel(BaseModel):
+    id: int
+
+
 class OrmConfig(BaseConfig):
     orm_mode = True
 
