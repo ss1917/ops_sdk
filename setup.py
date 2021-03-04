@@ -12,7 +12,7 @@ import re
 from io import open
 from distutils.core import setup
 
-version = '0.0.51'
+version = '0.0.52'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('Finit requires at least Python 2.7 or 3.6 to run.')
@@ -30,7 +30,7 @@ def get_data_files():
 
 
 def get_install_requires():
-    requires = ['fire==0.3.1', 'shortuuid==1.0.1', 'pymysql==0.9.3', 'sqlalchemy==1.3.0', 'python3-pika==0.9.14', 'PyJWT==1.7.1',
+    requires = ['fire==0.3.1', 'shortuuid==1.0.1', 'pymysql==0.9.3', 'sqlalchemy==1.3.0', 'python3-pika==0.9.14', 'PyJWT==2.0.1',
                 'Crypto==1.4.1', 'requests==2.24.0', 'redis==2.10.6', 'tornado>=5.0',
                 'aliyun-python-sdk-core-v3==2.13.11', 'aliyun-python-sdk-dysmsapi', 'python-dateutil==2.7.5',
                 'ldap3==2.6', 'pydantic==1.7', 'pycryptodome==3.9.9', 'rsa==4.0']
