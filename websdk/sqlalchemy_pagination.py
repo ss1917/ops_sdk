@@ -37,10 +37,10 @@ def paginate(query, order_by: str = None, **query_params):
     if page <= 0: raise AttributeError('page needs to be >= 1')
     if page_size <= 0: raise AttributeError('page_size needs to be >= 1')
     if order_by:
-        items = query.order_by(order_by).all() if page_size >= 300 else query.limit(page_size).offset(
-            (page - 1) * page_size).order_by(order_by).all()
+        items = query.order_by(order_by).all() if page_size >= 200 else query.order_by(order_by).limit(
+            page_size).offset((page - 1) * page_size).all()
     else:
-        items = query.all() if page_size >= 300 else query.limit(page_size).offset((page - 1) * page_size).all()
+        items = query.all() if page_size >= 200 else query.limit(page_size).offset((page - 1) * page_size).all()
 
     total = query.order_by(order_by).count()
     if not items_not_to_list: items = queryset_to_list(items)
