@@ -29,6 +29,15 @@ class BaseHandler(RequestHandler):
 
     def get_params_dict(self):
         self.params = {k: self.get_argument(k) for k in self.request.arguments}
+        if "filter_map" in self.params:
+            try:
+                import json
+                filter_map = self.params.get('filter_map')
+                filter_map = json.loads(filter_map)
+            except:
+                filter_map = {}
+            self.params['filter_map'] = filter_map
+
         if "auth_key" in self.params: self.params.pop('auth_key')
 
     def codo_csrf(self):
