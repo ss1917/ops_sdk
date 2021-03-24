@@ -93,6 +93,9 @@ class BaseHandler(RequestHandler):
         self.set_secure_cookie("email", str(self.email))
         self.is_superuser = self.is_super
 
+    def initialize(self, handle_name, handle_status):
+        pass
+
     def prepare(self):
         ### 获取url参数为字典
         self.get_params_dict()
@@ -238,6 +241,9 @@ class BaseHandler(RequestHandler):
 
 
 class LivenessProbe(RequestHandler):
+    def initialize(self, handle_name, handle_status):
+        pass
+
     def head(self, *args, **kwargs):
         self.write(dict(code=0, msg="I'm OK"))
 
