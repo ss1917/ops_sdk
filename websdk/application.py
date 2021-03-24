@@ -11,6 +11,7 @@ from tornado import httpserver, ioloop
 from tornado import options as tnd_options
 from tornado.options import options, define
 from tornado.web import Application as tornadoApp
+from tornado.web import RequestHandler
 from .web_logs import ins_log
 from .configs import configs
 
@@ -56,9 +57,6 @@ class Application(tornadoApp):
         urls_meta_list.extend([{"url": u[0], "name": u[2].get('name')[0:30] if u[2].get('name') else "",
                                 "status": u[2].get('status')[0:2] if u[2].get('status') else "y"} if len(u) > 2 else {
             "url": u[0], "name": "暂无", "status": "y"} for u in urls])
-
-
-from tornado.web import RequestHandler
 
 
 class MetaProbe(RequestHandler):
