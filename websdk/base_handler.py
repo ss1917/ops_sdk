@@ -36,8 +36,12 @@ class BaseHandler(RequestHandler):
                 filter_map = json.loads(filter_map)
             except:
                 filter_map = {}
-            self.params['filter_map'] = filter_map
+        else:
+            filter_map = {}
+        self.params['filter_map'] = filter_map
 
+        if self.request_resource_map and isinstance(self.request_resource_map, dict):
+            self.params['filter_map'] = {**filter_map, **self.request_resource_map}
         if "auth_key" in self.params: self.params.pop('auth_key')
 
     def codo_csrf(self):
