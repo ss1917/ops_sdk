@@ -93,7 +93,7 @@ class BaseHandler(RequestHandler):
         self.set_secure_cookie("email", str(self.email))
         self.is_superuser = self.is_super
 
-    def initialize(self, handle_name, handle_status):
+    def initialize(self, *args, **kwargs):
         pass
 
     def prepare(self):
@@ -241,7 +241,7 @@ class BaseHandler(RequestHandler):
 
 
 class LivenessProbe(RequestHandler):
-    def initialize(self, handle_name, handle_status):
+    def initialize(self, *args, **kwargs):
         pass
 
     def head(self, *args, **kwargs):
