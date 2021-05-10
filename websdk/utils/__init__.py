@@ -229,39 +229,54 @@ from websdk.cache_context import cache_conn
 if configs.can_import: configs.import_dict(**settings)
 
 redis_conn = cache_conn()
-for i in range(200):
+obj = TokenBucket(redis_conn, 'ss', 5, 60)
+for i in range(120):
     time.sleep(0.5)
-    status = token_can_access(redis_conn, 'ss', 'tuanzi')
+    status = obj.can_access('tuanzi')
     print(status)
-
 '''
 
 
-def token_can_access(cache, bucket_key, func_name) -> bool:
+class TokenBucket:
     """令牌桶限流"""
-    # cache       redis 或者缓存
+
     # bucket_key  用来标记令牌
     # func_name   第二段标记
-    redis_key = bucket_key + func_name
-    capacity = 5  # 桶容量
-    rate = 1  # 速率 每秒增加一个令牌
+    # capacity = 5  # 桶容量
+    # rate = 1  # 速率 每分增加一个令牌
 
-    now = int(time.time())
-    current_tokens = cache.hget(redis_key, 'current_tokens')
-    last_time = cache.hget(redis_key, 'last_time')
+    def __init__(self, cache, bucket_key, capacity: int = 5, rate: int = 1):
+        self.bucket_key = bucket_key  # 用来标记令牌桶
+        self.capacity = capacity  # 桶容量
+        self.rate = rate  # 速率 每分钟增加的令牌
+        self.cache = cache
+        if not isinstance(rate, int): raise Exception('Rate must be int')
 
-    current_tokens = int(current_tokens) if current_tokens else capacity
-    last_time = int(last_time) if last_time else now
+    def can_access(self, func_name) -> bool:
+        """令牌桶限流"""
+        redis_key = self.bucket_key + func_name
 
-    increase_tokens = (now - last_time) * rate  # 增加的令牌桶
-    current_tokens = min(capacity, current_tokens + increase_tokens)
+        now = int(time.time())
+        current_tokens = self.cache.hget(redis_key, 'current_tokens')
+        last_time = self.cache.hget(redis_key, 'last_time')
 
-    if current_tokens > 0:
-        cache.hset(redis_key, 'current_tokens', current_tokens - 1)
-        cache.hset(redis_key, 'last_time', int(time.time()))
-        return True
-    else:
-        return False
+        current_tokens = current_tokens if current_tokens else self.capacity
+        try:
+            current_tokens = int(current_tokens)
+        except:
+            current_tokens = float(current_tokens)
+            self.capacity = float(self.capacity)
+
+        last_time = int(last_time) if last_time else now
+
+        increase_tokens = (now - last_time) * self.rate / 60  # 增加的令牌桶  按分钟计算
+        current_tokens = min(self.capacity, current_tokens + increase_tokens)
+        if current_tokens > 0:
+            self.cache.hset(redis_key, 'current_tokens', current_tokens - 1)
+            self.cache.hset(redis_key, 'last_time', int(time.time()))
+            return True
+        else:
+            return False
 
 
 if __name__ == '__main__':
