@@ -218,5 +218,51 @@ def get_node_topic(node=False):
         return f'{socket.gethostname()}--mac-{mac}'
 
 
+### 令牌桶限流
+'''
+示例
+import time
+from settings import settings
+from websdk.configs import configs
+from websdk.cache_context import cache_conn
+
+if configs.can_import: configs.import_dict(**settings)
+
+redis_conn = cache_conn()
+for i in range(200):
+    time.sleep(0.5)
+    status = token_can_access(redis_conn, 'ss', 'tuanzi')
+    print(status)
+
+'''
+
+
+def token_can_access(cache, bucket_key, func_name) -> bool:
+    """令牌桶限流"""
+    # cache       redis 或者缓存
+    # bucket_key  用来标记令牌
+    # func_name   第二段标记
+    redis_key = bucket_key + func_name
+    capacity = 5  # 桶容量
+    rate = 1  # 速率 每秒增加一个令牌
+
+    now = int(time.time())
+    current_tokens = cache.hget(redis_key, 'current_tokens')
+    last_time = cache.hget(redis_key, 'last_time')
+
+    current_tokens = int(current_tokens) if current_tokens else capacity
+    last_time = int(last_time) if last_time else now
+
+    increase_tokens = (now - last_time) * rate  # 增加的令牌桶
+    current_tokens = min(capacity, current_tokens + increase_tokens)
+
+    if current_tokens > 0:
+        cache.hset(redis_key, 'current_tokens', current_tokens - 1)
+        cache.hset(redis_key, 'last_time', int(time.time()))
+        return True
+    else:
+        return False
+
+
 if __name__ == '__main__':
     pass
