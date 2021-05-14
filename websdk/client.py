@@ -116,9 +116,13 @@ class AcsClient:
         # loop.close()
         
         tornado 项目内必须使用异步，不过可以直接使用
-        #client.do_action_with_async(**api_set.get_users)
-        # response = json.loads(response)
-        # print(response)
+        from websdk.client import AcsClient
+        from websdk.api_set import api_set
+        async def get(self):
+            endpoint = ''
+            client = AcsClient(endpoint=endpoint, headers=self.request.headers)
+            response = await client.do_action_with_async(**api_set.get_users)
+            return self.write(response)
         
          """
         return help_info
