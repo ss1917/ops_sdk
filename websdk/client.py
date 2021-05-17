@@ -26,6 +26,7 @@ class AcsClient:
         else:
             self.headers = {"Cookie": 'auth_key={}'.format(auth_key)}
 
+        if 'If-None-Match' in self.headers: del self.headers['If-None-Match']
         self.endpoint = endpoint
         self.headers['Sdk-Method'] = 'zQtY4sw7sqYspVLrqV'
         self.request_timeout = request_timeout
