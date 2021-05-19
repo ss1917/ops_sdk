@@ -146,7 +146,7 @@ class AdminAPIS:
                               description='变更已发出通知消息的状态， 目前只有钉钉工作通知OA方式可用')
 
     send_custom_notice = dict(method='POST',
-                              url=f'{route_prefix}/v3/notifications/custom/',
+                              url=f'{route_prefix}/v1/notifications/custom/',
                               body={
                                   "send_addr": '',
                                   "userid_list": '',
