@@ -9,12 +9,13 @@ Desc    ：记录API
 
 
 class KerriganAPIS:
+    kerrigan_prefix = "/api/kerrigan"
     get_publish_config = dict(method='GET',
-                         url='/kerrigan/v1/conf/publish/config/',
-                         params={'project_code': '',
-                                 'environment': '',
-                                 'service': 'service',
-                                 'filename': 'filename'},
-                         field_help={},
-                         description='获取配置'
-                         )
+                              url=f'{kerrigan_prefix}/v1/conf/publish/config/',
+                              params={'project_code': '',
+                                      'environment': '',
+                                      'service': 'service',
+                                      'filename': 'filename'},
+                              field_help={},
+                              description='获取配置'
+                              )
