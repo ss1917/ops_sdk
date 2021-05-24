@@ -7,11 +7,8 @@ Date   : 2018年2月5日13:37:54
 Desc   : 处理API请求
 """
 
-# import jwt
-# import shortuuid
 from shortuuid import uuid
 import traceback
-# from .cache import get_cache
 from .cache_context import cache_conn
 from tornado.web import RequestHandler, HTTPError
 from .jwt_token import AuthToken, jwt
@@ -63,10 +60,8 @@ class BaseHandler(RequestHandler):
 
     def codo_login(self):
         ### 登陆验证
-        auth_key = self.get_cookie('auth_key', None)
-        if not auth_key:
-            url_auth_key = self.get_argument('auth_key', default=None, strip=True)
-            if url_auth_key: auth_key = bytes(url_auth_key, encoding='utf-8')
+        auth_key = self.get_cookie('auth_key') if self.get_cookie("auth_key") else self.request.headers.get('auth-key')
+        if not auth_key: auth_key = self.get_argument('auth_key', default=None, strip=True)
 
         if not auth_key: raise HTTPError(401, 'auth failed')
 
@@ -105,59 +100,6 @@ class BaseHandler(RequestHandler):
         ### 登陆验证
         self.codo_login()
 
-        # 验证客户端CSRF，如请求为GET，则不验证，否则验证。最后将写入新的key
-        # cache = cache_conn()
-        # if self.request.method in ("GET", "HEAD", "OPTIONS") or self.request.headers.get('Sdk-Method'):
-        #     pass
-        # else:
-        #     csrf_key = self.get_cookie('csrf_key')
-        #     pipeline = cache.get_pipeline()
-        #     result = cache.get(csrf_key, private=False, pipeline=pipeline)
-        #     cache.delete(csrf_key, private=False, pipeline=pipeline)
-        #     if result != '1':
-        #         raise HTTPError(402, 'csrf error')
-        #
-        # cache.set(self.new_csrf_key, 1, expire=1800, private=False)
-        # self.set_cookie('csrf_key', self.new_csrf_key)
-        #
-        # ### 登陆验证
-        # auth_key = self.get_cookie('auth_key', None)
-        #
-        # if not auth_key:
-        #     url_auth_key = self.get_argument('auth_key', default=None, strip=True)
-        #     if url_auth_key:
-        #         auth_key = bytes(url_auth_key, encoding='utf-8')
-        #
-        # if not auth_key:
-        #     # if not auth_key or not self.get_secure_cookie("user_id") or not self.get_secure_cookie("username") :
-        #     # 没登录，就让跳到登陆页面
-        #     raise HTTPError(401, 'auth failed')
-        #
-        # else:
-        #     if self.token_verify:
-        #         auth_token = AuthToken()
-        #         user_info = auth_token.decode_auth_token(auth_key)
-        #     else:
-        #         user_info = jwt.decode(auth_key, verify=False).get('data')
-        #     if not user_info:
-        #         raise HTTPError(401, 'auth failed')
-        #
-        #     self.user_id = user_info.get('user_id', None)
-        #     self.username = user_info.get('username', None)
-        #     self.nickname = user_info.get('nickname', None)
-        #     self.email = user_info.get('email', None)
-        #     self.is_super = user_info.get('is_superuser', False)
-        #
-        #     if not self.user_id:
-        #         raise HTTPError(401, 'auth failed')
-        #     else:
-        #         self.user_id = str(self.user_id)
-        #         self.set_secure_cookie("user_id", self.user_id)
-        #         self.set_secure_cookie("nickname", self.nickname)
-        #         self.set_secure_cookie("username", self.username)
-        #         self.set_secure_cookie("email", str(self.email))
-        # self.is_superuser = self.is_super
-
     def get_current_user(self):
         return self.username
 
@@ -176,9 +118,13 @@ class BaseHandler(RequestHandler):
     @property
     def request_resource_group(self):
         if not self.resource_group:
-            resource_group = self.get_secure_cookie("resource_group")
-            if resource_group and isinstance(resource_group, bytes):  return bytes.decode(resource_group)
-            return None
+            self.resource_group = self.get_secure_cookie("resource_group") if self.get_secure_cookie(
+                "resource_group") else self.request.headers.get('resource-group')
+
+            if not self.resource_group: return None
+            if isinstance(self.resource_group, bytes):  self.resource_group = bytes.decode(self.resource_group)
+            return self.resource_group
+
         return self.resource_group
 
     @property
@@ -187,6 +133,17 @@ class BaseHandler(RequestHandler):
             return dict()
         else:
             return dict(resource_group=self.request_resource_group)
+
+    @property
+    def request_business_id(self):
+        if not self.business_id:
+            self.business_id = self.get_secure_cookie("business_id") if self.get_secure_cookie("business_id") else \
+                self.request.headers.get('biz-id')
+            if not self.business_id: return None
+            if isinstance(self.business_id, bytes):  self.business_id = bytes.decode(self.business_id)
+            return self.business_id
+
+        return self.business_id
 
     @property
     def request_username(self):
