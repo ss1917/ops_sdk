@@ -163,6 +163,33 @@ def mail_login(user, password, mail_server='smtp.exmail.qq.com'):
         return False
 
 
+# def get_contain_dict(src_data: dict, dst_data: dict) -> bool:
+#     if not isinstance(src_data, dict):
+#         try:
+#             src_data = json.loads(src_data)
+#         except Exception as err:
+#             return False
+#
+#     if not isinstance(dst_data, dict):
+#         try:
+#             dst_data = json.loads(dst_data)
+#         except Exception as err:
+#             return False
+#
+#     # src_key = list(src_data.keys())
+#     # dst_key = list(dst_data.keys())
+#     pd = [False for c in src_data.keys() if c not in dst_data]
+#     if pd:
+#         return False
+#     else:
+#         src_val = list(src_data.values())
+#         dst_val = list(dst_data.values())
+#         pds = [False for c in src_val if c not in dst_val]
+#         if pds:
+#             return False
+#         else:
+#             return True
+
 def get_contain_dict(src_data: dict, dst_data: dict) -> bool:
     if not isinstance(src_data, dict):
         try:
@@ -176,8 +203,7 @@ def get_contain_dict(src_data: dict, dst_data: dict) -> bool:
         except Exception as err:
             return False
 
-    # src_key = list(src_data.keys())
-    # dst_key = list(dst_data.keys())
+    ### 判断键是否存在
     pd = [False for c in src_data.keys() if c not in dst_data]
     if pd:
         return False
@@ -186,10 +212,16 @@ def get_contain_dict(src_data: dict, dst_data: dict) -> bool:
         dst_val = list(dst_data.values())
         pds = [False for c in src_val if c not in dst_val]
         if pds:
+            try:
+                for d in dst_val:
+                    if isinstance(d, dict) and src_val and isinstance(src_val[0], dict):
+                        pds1 = [True for sv in src_val[0].keys() if sv in d and d.get(sv) == src_val[0].get(sv)]
+                        if True in pds1: return True
+            except:
+                return False
             return False
         else:
             return True
-
 
 def now_time_stamp() -> int:
     """
