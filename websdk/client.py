@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 
 class AcsClient:
-    def __init__(self, request=None, auth_key=None, headers=None,
-                 endpoint=configs.get(const.WEBSITE_API_GW_URL, 'http://gw.opendevops.cn'), request_timeout=10):
+    def __init__(self, request=None, auth_key=None, headers=None, endpoint='http://gw.opendevops.cn',
+                 request_timeout=10):
         if request:
             self.headers = request.headers
         elif headers:
@@ -32,6 +32,8 @@ class AcsClient:
 
         if 'If-None-Match' in self.headers: del self.headers['If-None-Match']
         self.endpoint = endpoint
+        if configs.get(const.WEBSITE_API_GW_URL) and endpoint == 'http://gw.opendevops.cn':
+            self.endpoint = configs.get(const.WEBSITE_API_GW_URL)
         self.headers['Sdk-Method'] = 'zQtY4sw7sqYspVLrqV'
         self.request_timeout = request_timeout
 

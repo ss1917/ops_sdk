@@ -7,16 +7,8 @@ Date    : 2018/9/5
 Desc    : 配置文件
 """
 
-
-# from configparser import ConfigParser
-
 from .consts import const
 from .tools import singleton
-
-
-# class VMBConfig(ConfigParser):
-#     def optionxform(self, optionstr):
-#         return optionstr
 
 
 @singleton
@@ -42,7 +34,6 @@ class Config(dict):
             self.__can_import = False
         else:
             raise Exception('ConfigImportError')
-
 
     def __init_default(self):
         self['debug'] = False
