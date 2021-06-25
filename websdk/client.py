@@ -11,20 +11,24 @@ import json
 import requests
 from urllib.parse import urlencode
 import logging
+from .consts import const
+from .configs import configs
 from tornado.httpclient import AsyncHTTPClient
 
 logger = logging.getLogger(__name__)
 
 
 class AcsClient:
-    def __init__(self, request=None, auth_key=None, headers=None, endpoint='http://gw.opendevops.cn',
-                 request_timeout=10):
+    def __init__(self, request=None, auth_key=None, headers=None,
+                 endpoint=configs.get(const.WEBSITE_API_GW_URL, 'http://gw.opendevops.cn'), request_timeout=10):
         if request:
             self.headers = request.headers
         elif headers:
             self.headers = headers
-        else:
+        elif auth_key:
             self.headers = {"Cookie": 'auth_key={}'.format(auth_key)}
+        else:
+            self.headers = {"Cookie": 'auth_key={}'.format(configs.get(const.API_AUTH_KEY))}
 
         if 'If-None-Match' in self.headers: del self.headers['If-None-Match']
         self.endpoint = endpoint

@@ -115,7 +115,8 @@ const.APP_SETTINGS = 'APP_SETTINGS'
 ### all user info
 const.USERS_INFO = 'USERS_INFO'
 ##### API GW
-const.WEBSITE_API_GW_URL = 'WEBSITE_API_GW_URL'
+const.WEBSITE_API_GW_URL = 'api_gw'
+const.API_AUTH_KEY = 'settings_auth_key'
 const.EMAILLOGIN_DOMAIN = 'EMAILLOGIN_DOMAIN'
 const.EMAILLOGIN_SERVER = 'EMAILLOGIN_SERVER'
 ##### e-mail
