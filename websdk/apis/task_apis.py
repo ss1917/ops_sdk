@@ -35,3 +35,30 @@ class TaskAPIS:
                            "details": "描述，备注信息",
                        },
                        description='基于此接口可以创建作业任务')
+
+    ##(r"/v1/proxy/cmdbv3/dynamic_group/info/"
+    get_proxy_dynamic_group_list = dict(
+        method='GET',
+        url=f'{job_prefix}/v1/proxy/cmdbv3/dynamic_group/',
+        params={
+            "biz_id": None,  ###  业务/资源id
+            'page_number': '1',  ### 分页/第几页
+            'page_size': '200',  ### 分页/每页多少个
+        },
+        field_help={
+        },
+        description='COCO动态分组'
+    )
+
+    ##CC动态分组 获取动态分组详细数据"
+    get_proxy_dynamic_group_info = dict(
+        method='GET',
+        url=f'{job_prefix}/v1/proxy/cmdbv3/dynamic_group/',
+        params={
+            "exec_uuid": None,  ###  使用动态分组的UUID查询
+            'exec_uuid_list': '[]',  ### 批量查询
+        },
+        field_help={
+        },
+        description='CC动态分组 获取动态分组详细数据'
+    )
