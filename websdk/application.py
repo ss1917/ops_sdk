@@ -31,8 +31,10 @@ class Application(tornadoApp):
         ins_log.read_log('info', '%s' % options.progid)
         handlers.extend([(r"/v1/probe/meta/urls/", MetaProbe), ])
         self.urls_meta_handle(handlers)
+        max_buffer_size = configs.get('max_buffer_size')
+        max_body_size = configs.get('max_body_size')
         super(Application, self).__init__(handlers, default_host, transforms, **configs)
-        http_server = httpserver.HTTPServer(self)
+        http_server = httpserver.HTTPServer(self, max_buffer_size=max_buffer_size, max_body_size=max_body_size)
         http_server.listen(options.port, address=options.addr)
         self.io_loop = ioloop.IOLoop.instance()
 
