@@ -172,6 +172,7 @@ const.STATE_BREAK = '6'
 const.STATE_TIMING = '7'
 const.STATE_UNKNOWN = '8'
 const.STATE_FAIL = '9'
+const.STATE_IGNORE = '10'  ## 忽略
 const.EXEC_TIMEOUT = 1800
 
 ### 节点地址
