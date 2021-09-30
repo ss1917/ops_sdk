@@ -21,7 +21,7 @@ def model_to_dict(model):
         else:
             model_dict[column.name] = getattr(model, key, None)
 
-    if isinstance(getattr(model, "custom_extend_column_dict"), dict):
+    if isinstance(getattr(model, "custom_extend_column_dict", None), dict):
         model_dict.update(**getattr(model, "custom_extend_column_dict", {}))
     return model_dict
 
