@@ -15,8 +15,8 @@ from .error import ConfigError
 
 class MessageQueueBase(object):
     def __init__(self, exchange, exchange_type, routing_key='', routing_keys=None, queue_name='', no_ack=False,
-                 mq_key=''):
-        mq_config = configs[const.MQ_CONFIG_ITEM][const.DEFAULT_MQ_KEY]
+                 mq_key=const.DEFAULT_MQ_KEY):
+        mq_config = configs[const.MQ_CONFIG_ITEM][mq_key]
         if const.MQ_ADDR not in mq_config:
             raise ConfigError(const.MQ_ADDR)
         if const.MQ_PORT not in mq_config:
@@ -92,7 +92,8 @@ class MessageQueueBase(object):
         pass
 
     def publish_message(self, body, durable=True, exchange_durable=False):
-        self.__channel.exchange_declare(exchange=self.__exchange, exchange_type=self.__exchange_type, durable=exchange_durable)
+        self.__channel.exchange_declare(exchange=self.__exchange, exchange_type=self.__exchange_type,
+                                        durable=exchange_durable)
         if self.__queue_name:
             result = self.__channel.queue_declare(queue=self.__queue_name)
         else:

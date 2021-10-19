@@ -82,6 +82,7 @@ const.MQ_VHOST = 'MQ_VHOST'
 const.MQ_USER = 'MQ_USER'
 const.MQ_PWD = 'MQ_PWD'
 const.DEFAULT_MQ_KEY = 'default'
+const.AGENT_MQ_KEY = 'agent'
 
 const.APP_NAME = 'app_name'
 const.LOG_PATH = 'log_path'
