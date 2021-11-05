@@ -7,9 +7,11 @@ Date   : 2018年2月5日13:37:54
 Desc   : 处理API请求
 """
 
+import hmac
 from shortuuid import uuid
 import traceback
 from .cache_context import cache_conn
+from tornado.escape import utf8, _unicode
 from tornado.web import RequestHandler, HTTPError
 from .jwt_token import AuthToken, jwt
 
@@ -57,6 +59,24 @@ class BaseHandler(RequestHandler):
             if result != '1':   raise HTTPError(402, 'csrf error')
         cache.set(self.new_csrf_key, '1', ex=1800)
         self.set_cookie('csrf_key', self.new_csrf_key)
+
+    def check_xsrf_cookie(self):
+        if self.request.method in ("GET", "HEAD", "OPTIONS") or self.request.headers.get('Sdk-Method'):
+            pass
+        else:
+            token = (
+                    self.get_argument("_xsrf", None)
+                    or self.request.headers.get("X-Xsrftoken")
+                    or self.request.headers.get("X-Csrftoken")
+            )
+            if not token: raise HTTPError(402, "'_xsrf' argument missing from POST")
+            _, token, _ = self._decode_xsrf_token(token)
+            _, expected_token, _ = self._get_raw_xsrf_token()
+            if not token:
+                raise HTTPError(402, "'_xsrf' argument has invalid format")
+            if not hmac.compare_digest(utf8(token), utf8(expected_token)):
+                raise HTTPError(402, "XSRF cookie does not match POST argument")
+
 
     def codo_login(self):
         ### 登陆验证
