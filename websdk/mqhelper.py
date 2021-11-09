@@ -97,7 +97,7 @@ class MessageQueueBase(object):
         if self.__queue_name:
             result = self.__channel.queue_declare(queue=self.__queue_name)
         else:
-            result = self.__channel.queue_declare(exclusive=True)
+            result = self.__channel.queue_declare(exclusive=True, auto_delete=True)
 
         self.__channel.queue_bind(exchange=self.__exchange, queue=result.method.queue)
 
