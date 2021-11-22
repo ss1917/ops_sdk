@@ -44,23 +44,25 @@ class BaseHandler(RequestHandler):
         if "auth_key" in self.params: self.params.pop('auth_key')
 
     def codo_csrf(self):
+        pass
         # 验证客户端CSRF，如请求为GET，则不验证，否则验证。最后将写入新的key
-        cache = cache_conn()
-
-        # or self.request.headers.get('X-Gitlab-Token')
-        if self.request.method in ("GET", "HEAD", "OPTIONS") or self.request.headers.get('Sdk-Method'):
-            pass
-        else:
-            csrf_key = self.get_cookie('csrf_key')
-            if not csrf_key:  raise HTTPError(402, 'csrf error need csrf key')
-            result = cache.get(csrf_key)
-            cache.delete(csrf_key)
-            if isinstance(result, bytes): result = result.decode()
-            if result != '1':   raise HTTPError(402, 'csrf error')
-        cache.set(self.new_csrf_key, '1', ex=1800)
-        self.set_cookie('csrf_key', self.new_csrf_key)
+        # cache = cache_conn()
+        #
+        # # or self.request.headers.get('X-Gitlab-Token')
+        # if self.request.method in ("GET", "HEAD", "OPTIONS") or self.request.headers.get('Sdk-Method'):
+        #     pass
+        # else:
+        #     csrf_key = self.get_cookie('csrf_key')
+        #     if not csrf_key:  raise HTTPError(402, 'csrf error need csrf key')
+        #     result = cache.get(csrf_key)
+        #     cache.delete(csrf_key)
+        #     if isinstance(result, bytes): result = result.decode()
+        #     if result != '1':   raise HTTPError(402, 'csrf error')
+        # cache.set(self.new_csrf_key, '1', ex=1800)
+        # self.set_cookie('csrf_key', self.new_csrf_key)
 
     def check_xsrf_cookie(self):
+        if not self.settings.get('xsrf_cookies'): return
         if self.request.method in ("GET", "HEAD", "OPTIONS") or self.request.headers.get('Sdk-Method'):
             pass
         else:
