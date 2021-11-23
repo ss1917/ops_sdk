@@ -118,6 +118,7 @@ class BaseHandler(RequestHandler):
         self.get_params_dict()
         ### 验证客户端CSRF
         self.codo_csrf()
+        self.xsrf_token
 
         ### 登陆验证
         self.codo_login()
