@@ -7,10 +7,12 @@ Date   : 2018年2月5日13:37:54
 Desc   : 处理API请求
 """
 
+import json
+import base64
 import hmac
 from shortuuid import uuid
 import traceback
-from .cache_context import cache_conn
+# from .cache_context import cache_conn
 from tornado.escape import utf8, _unicode
 from tornado.web import RequestHandler, HTTPError
 from .jwt_token import AuthToken, jwt
@@ -23,8 +25,12 @@ class BaseHandler(RequestHandler):
         self.user_id, self.username, self.nickname, self.email, self.is_super = None, None, None, None, False
         self.is_superuser = self.is_super
         self.token_verify = False
+        self.tenant_filter = False
         self.params = {}
         super(BaseHandler, self).__init__(*args, **kwargs)
+
+    def initialize(self, *args, **kwargs):
+        pass
 
     def get_params_dict(self):
         self.params = {k: self.get_argument(k) for k in self.request.arguments}
@@ -39,27 +45,13 @@ class BaseHandler(RequestHandler):
             filter_map = {}
         self.params['filter_map'] = filter_map
 
-        if self.request_resource_map and isinstance(self.request_resource_map, dict):
-            self.params['filter_map'] = {**filter_map, **self.request_resource_map}
+        if self.tenant_filter and self.request_tenant_map and isinstance(self.request_tenant_map, dict):
+            self.params['filter_map'] = {**filter_map, **self.request_tenant_map}
+
         if "auth_key" in self.params: self.params.pop('auth_key')
 
     def codo_csrf(self):
         pass
-        # 验证客户端CSRF，如请求为GET，则不验证，否则验证。最后将写入新的key
-        # cache = cache_conn()
-        #
-        # # or self.request.headers.get('X-Gitlab-Token')
-        # if self.request.method in ("GET", "HEAD", "OPTIONS") or self.request.headers.get('Sdk-Method'):
-        #     pass
-        # else:
-        #     csrf_key = self.get_cookie('csrf_key')
-        #     if not csrf_key:  raise HTTPError(402, 'csrf error need csrf key')
-        #     result = cache.get(csrf_key)
-        #     cache.delete(csrf_key)
-        #     if isinstance(result, bytes): result = result.decode()
-        #     if result != '1':   raise HTTPError(402, 'csrf error')
-        # cache.set(self.new_csrf_key, '1', ex=1800)
-        # self.set_cookie('csrf_key', self.new_csrf_key)
 
     def check_xsrf_cookie(self):
         if not self.settings.get('xsrf_cookies'): return
@@ -78,7 +70,6 @@ class BaseHandler(RequestHandler):
                 raise HTTPError(402, "'_xsrf' argument has invalid format")
             if not hmac.compare_digest(utf8(token), utf8(expected_token)):
                 raise HTTPError(402, "XSRF cookie does not match POST argument")
-
 
     def codo_login(self):
         ### 登陆验证
@@ -109,9 +100,6 @@ class BaseHandler(RequestHandler):
         self.set_secure_cookie("username", self.username)
         self.set_secure_cookie("email", str(self.email))
         self.is_superuser = self.is_super
-
-    def initialize(self, *args, **kwargs):
-        pass
 
     def prepare(self):
         ### 获取url参数为字典
@@ -168,6 +156,40 @@ class BaseHandler(RequestHandler):
 
         return self.business_id
 
+    ### 新添加
+    @property
+    def request_tenant(self):
+        if self.request.headers.get('tenant'):
+            return str(base64.b64decode(self.request.headers.get('tenant')), "utf-8")
+        if self.get_secure_cookie('tenant'):  return self.get_secure_cookie('tenant')
+        if self.get_secure_cookie('resource_group'):  return self.get_secure_cookie('resource_group')
+        return None
+
+    @property
+    def request_tenantid(self):
+        if self.request.headers.get('tenantid'):  return self.request.headers.get('tenantid')
+        if self.get_secure_cookie('tenantid'):  return self.get_secure_cookie('tenantid')
+        if self.get_secure_cookie('business_id'):  return self.get_secure_cookie('business_id')
+        return None
+
+    @property
+    def request_tenant_map(self):
+        if self.request_tenantid in [None, '500'] or self.request_tenant in [None, 'all', '所有项目']:
+            return dict()
+        else:
+            return dict(tenantid=self.request_tenantid)
+
+    @property
+    def biz_info_map(self):
+        from .cache_context import cache_conn
+        redis_conn = cache_conn()
+        try:
+            biz_info_str = redis_conn.get("BIZ_INFO_STR")
+            biz_info_dict = json.loads(biz_info_str.decode())
+        except Exception as err:
+            return {}
+        return biz_info_dict
+
     @property
     def request_username(self):
         return self.username
@@ -187,6 +209,9 @@ class BaseHandler(RequestHandler):
     @property
     def request_is_superuser(self):
         return self.is_superuser
+
+    def request_fullname(self):
+        return f'{self.request_username}({self.request_nickname})'
 
     def write_error(self, status_code, **kwargs):
         error_trace_list = traceback.format_exception(*kwargs.get("exc_info"))
