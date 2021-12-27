@@ -161,15 +161,23 @@ class BaseHandler(RequestHandler):
     def request_tenant(self):
         if self.request.headers.get('tenant'):
             return str(base64.b64decode(self.request.headers.get('tenant')), "utf-8")
-        if self.get_secure_cookie('tenant'):  return self.get_secure_cookie('tenant')
-        if self.get_secure_cookie('resource_group'):  return self.get_secure_cookie('resource_group')
+        if self.get_secure_cookie('tenant'):
+            tenant = self.get_secure_cookie('tenant')
+            return bytes.decode(tenant) if isinstance(tenant, bytes) else tenant
+        if self.get_secure_cookie('resource_group'):
+            tenant = self.get_secure_cookie('resource_group')
+            return bytes.decode(tenant) if isinstance(tenant, bytes) else tenant
         return None
 
     @property
     def request_tenantid(self):
         if self.request.headers.get('tenantid'):  return self.request.headers.get('tenantid')
-        if self.get_secure_cookie('tenantid'):  return self.get_secure_cookie('tenantid')
-        if self.get_secure_cookie('business_id'):  return self.get_secure_cookie('business_id')
+        if self.get_secure_cookie('tenantid'):
+            tenantid = self.get_secure_cookie('tenantid')
+            return bytes.decode(tenantid) if isinstance(tenantid, bytes) else tenantid
+        if self.get_secure_cookie('business_id'):
+            tenantid = self.get_secure_cookie('business_id')
+            return bytes.decode(tenantid) if isinstance(tenantid, bytes) else tenantid
         return None
 
     @property
