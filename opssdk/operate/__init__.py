@@ -13,7 +13,8 @@ import re
 import subprocess
 import base64
 import rsa
-from Crypto.Cipher import AES
+# from Crypto.Cipher import AES
+from cryptography.fernet import Fernet
 from binascii import b2a_hex, a2b_hex
 
 
@@ -70,91 +71,39 @@ def exclusiveLock(scriptName):
 ### 加密解密模块
 class MyCrypt:
     """
+    AES 加密
     usage: mc = MyCrypt()               实例化
         mc.my_encrypt('ceshi')          对字符串ceshi进行加密
         mc.my_decrypt('')               对密文进行解密
     """
 
-    def __init__(self, key='HOrUmuJ4bCVG6EYu2docoRNNYSdDpJJw'):
+    def __init__(self, key: bytes = b'2_KUVf24Axi2PCK29nDmXyjIHNONivfGUWFxiXB5eDU='):
         # 这里密钥key 长度必须为16（AES-128）、24（AES-192）、或32（AES-256）Bytes 长度
-        self.key = key
-        self.mode = AES.MODE_CBC
+        if isinstance(key, str): key = key.encode('utf-8')
+        self.f = Fernet(key)
 
-    def my_encrypt(self, text):
-        length = 32
-        count = len(text)
-        if count < length:
-            add = length - count
-            text = text + ('\0' * add)
+    @property
+    def create_key(self):
+        return Fernet.generate_key()
 
-        elif count > length:
-            add = (length - (count % length))
-            text = text + ('\0' * add)
+    def my_encrypt(self, text: str):
+        if isinstance(text, str): text = text.encode('utf-8')
+        return self.f.encrypt(text).decode('utf-8')
 
-        cryptor = AES.new(self.key, self.mode, b'0000000000000000')
-        self.ciphertext = cryptor.encrypt(text)
-        return b2a_hex(self.ciphertext).decode('utf-8')
-
-    def my_decrypt(self, text):
-        cryptor = AES.new(self.key, self.mode, b'0000000000000000')
-        plain_text = cryptor.decrypt(a2b_hex(text)).decode('utf-8')
-        return plain_text.rstrip('\0')
+    def my_decrypt(self, text: str):
+        if isinstance(text, str): text = text.encode('utf-8')
+        return self.f.decrypt(text).decode('utf-8')
 
 
-class MyCryptV2:
+class MyCryptV2(MyCrypt):
 
-    def __init__(self, key='HOrUmuJ4bCVG6EYu2docoRNNYSdDpJJw'):
-        """
-        Usage:
-            #实例化
-            mc = MyCrypt()
-            #加密方法
-            mc.my_encrypt('password')
-            #解密方法
-            mc.my_decrypt('ZpZjEcsqnySTz6UsXD/+TA==')
-        :param key:
-        """
-        self.key = key
-
-    # str不是16的倍数那就补足为16的倍数
-    def add_to_16(self, value):
-        while len(value) % 16 != 0:
-            value += '\0'
-        return str.encode(value)  # 返回bytes
-
-    def my_encrypt(self, text):
-        """
-        加密方法
-        :param text: 密码
-        :return:
-        """
-        aes = AES.new(self.add_to_16(self.key), AES.MODE_ECB)
-        # 先进行aes加密
-
-        encrypt_aes = aes.encrypt(self.add_to_16(text))
-        # 用base64转成字符串形式
-        encrypted_text = str(base64.encodebytes(encrypt_aes), encoding='utf-8').replace('\n', '')  # 执行加密并转码返回bytes
-        # print('[INFO]: 你的加密为：{}'.format(encrypted_text))
-        return encrypted_text
-
-    def my_decrypt(self, text):
-        """
-        解密方法
-        :param text: 加密后的密文
-        :return:
-        """
-        # 初始化加密器
-        aes = AES.new(self.add_to_16(self.key), AES.MODE_ECB)
-        # 优先逆向解密base64成bytes
-        base64_decrypted = base64.decodebytes(text.encode(encoding='utf-8'))
-        # 执行解密密并转码返回str
-        decrypted_text = str(aes.decrypt(base64_decrypted), encoding='utf-8').replace('\0', '')
-        # print('[INFO]: 你的解密为：{}'.format(decrypted_text))
-        return decrypted_text
+    def __init__(self, key: bytes = b'2_KUVf24Axi2PCK29nDmXyjIHNONivfGUWFxiXB5eDU='):
+        super(MyCryptV2, self).__init__(key)
 
 
 class MyCryptV3:
     """
+    RSA
     加密：公钥加密，私钥解密；
     签名：私钥签名，公钥验签。
     用作加密时，密文泄露是无所谓的（相对而言），重要的是用于解密的密钥必须安全，所以用不公开的私钥来解密，用公钥来加密；
@@ -273,6 +222,14 @@ def is_ip(ip):
 
 
 if __name__ == "__main__":
+    #### AES 加密
+    mc = MyCrypt()
+    print(mc.create_key)
+    token = mc.my_encrypt("A really secret message. Not for prying eyes.")
+    print(token)
+    the_text = mc.my_decrypt(token)
+    print(the_text)
+
     # 待加密字符串或者字节
     ceshiyixia = "富强、民主、文明、和谐”，是我国社会主义现代化国家的建设目标，也是从价值目标层面对社会主义核心价值观基本理念的凝练，在社会主义核心价值观中居于最高层次，对其他层次的价值理念具有统领作用。"
 
