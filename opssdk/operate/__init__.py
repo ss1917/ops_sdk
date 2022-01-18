@@ -15,7 +15,7 @@ import base64
 import rsa
 # from Crypto.Cipher import AES
 from cryptography.fernet import Fernet
-from binascii import b2a_hex, a2b_hex
+# from binascii import b2a_hex, a2b_hex
 
 
 ###执行shell命令函数
