@@ -118,10 +118,10 @@ role   : rabbitMQ 操作类
 """
 import traceback
 import pika
-from websdk2.consts import const
-from websdk2.configs import configs
-from websdk2.web_logs import ins_log
-from websdk2.error import ConfigError
+from .consts import const
+from .configs import configs
+from .web_logs import ins_log
+from .error import ConfigError
 
 
 class MessageQueueBase(object):
