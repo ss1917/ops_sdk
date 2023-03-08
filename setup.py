@@ -39,7 +39,7 @@ setup(
     name='codosdk',
     version=version,
     description="CODO项目的Python SDK",
-    packages=['opssdk', 'opssdk.operate', 'opssdk.utils','websdk' , 'websdk.apis', 'websdk.cloud', 'websdk.utils'],
+    packages=['opssdk', 'opssdk.operate', 'opssdk.utils','websdk2' , 'websdk2.apis', 'websdk2.cloud', 'websdk2.utils'],
     url='https://github.com/ss1917/codo_sdk/',
     license='GPLv3',
     keywords="ops,opencodo,devops",

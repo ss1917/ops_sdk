@@ -9,7 +9,7 @@ Desc    : 解释一下吧
 """
 
 import json
-from websdk.tools import singleton
+from .tools import singleton
 from .apis import AdminAPIS, TaskAPIS, KerriganAPIS
 
 

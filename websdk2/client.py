@@ -123,8 +123,8 @@ class AcsClient:
         # loop.close()
         
         tornado 项目内必须使用异步，不过可以直接使用
-        from websdk.client import AcsClient
-        from websdk.api_set import api_set
+        from websdk2.client import AcsClient
+        from websdk2.api_set import api_set
         async def get(self):
             endpoint = ''
             client = AcsClient(endpoint=endpoint, headers=self.request.headers)

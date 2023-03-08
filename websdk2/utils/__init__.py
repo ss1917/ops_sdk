@@ -255,8 +255,8 @@ def get_node_topic(node=False):
 示例
 import time
 from settings import settings
-from websdk.configs import configs
-from websdk.cache_context import cache_conn
+from websdk2.configs import configs
+from websdk2.cache_context import cache_conn
 
 if configs.can_import: configs.import_dict(**settings)
 

@@ -50,7 +50,7 @@ $ pip3 install -U git+https://github.com/ss1917/ops_sdk.git
         ├── mysql           mysql 操作
         ├── mail            发送邮件
         └── centralization  集中化管理工具 salt
-    └── websdk      web开发使用
+    └── websdk2      web开发使用
     ├── application.py          tornado application
     ├── base_handler.py         tornado  基类
     ├── cache.py                处理redis缓存
