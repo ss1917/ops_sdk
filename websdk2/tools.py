@@ -118,7 +118,7 @@ class RunningProcess:
 
     @property
     def run_state(self):
-        return bool(self.process.poll() is 0)
+        return bool(self.process.poll() == 0)
 
     def is_timeout(self, exec_time=600):
         duration = time.time() - self.start_time
