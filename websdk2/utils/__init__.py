@@ -15,9 +15,6 @@ import smtplib
 from ..consts import const
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from aliyunsdkdysmsapi.request.v20170525 import SendSmsRequest, QuerySendDetailsRequest
-from aliyunsdkcore.client import AcsClient
-from aliyunsdkcore.profile import region_provider
 import uuid
 
 
@@ -94,61 +91,6 @@ class SendMail(object):
             print(str(e))
             return False
 
-
-class SendSms(object):
-    def __init__(self, REGION, DOMAIN, PRODUCT_NAME, sms_access_key_id, sms_access_key_secret, ):
-        self.acs_client = AcsClient(sms_access_key_id, sms_access_key_secret, REGION)
-        region_provider.add_endpoint(PRODUCT_NAME, REGION, DOMAIN)
-
-    def send_sms(self, phone_numbers, template_param=None, sign_name="ops", template_code=""):
-        business_id = uuid.uuid1()
-        sms_request = SendSmsRequest.SendSmsRequest()
-        # 申请的短信模板编码,必填
-        sms_request.set_TemplateCode(template_code)
-
-        # 短信模板变量参数
-        if template_param is not None:
-            sms_request.set_TemplateParam(template_param)
-
-        # 设置业务请求流水号，必填。
-        sms_request.set_OutId(business_id)
-
-        # 短信签名
-        sms_request.set_SignName(sign_name)
-
-        # 短信发送的号码列表，必填。
-        sms_request.set_PhoneNumbers(phone_numbers)
-
-        # 调用短信发送接口，返回json
-        sms_response = self.acs_client.do_action_with_exception(sms_request)
-
-        ##业务处理
-        return sms_response
-
-    def query_send_detail(self, biz_id, phone_number, page_size, current_page, send_date):
-        query_request = QuerySendDetailsRequest.QuerySendDetailsRequest()
-        # 查询的手机号码
-        query_request.set_PhoneNumber(phone_number)
-        # 可选 - 流水号
-        query_request.set_BizId(biz_id)
-        # 必填 - 发送日期 支持30天内记录查询，格式yyyyMMdd
-        query_request.set_SendDate(send_date)
-        # 必填-当前页码从1开始计数
-        query_request.set_CurrentPage(current_page)
-        # 必填-页大小
-        query_request.set_PageSize(page_size)
-
-        # 数据提交方式
-        # queryRequest.set_method(MT.POST)
-
-        # 数据提交格式
-        # queryRequest.set_accept_format(FT.JSON)
-
-        # 调用短信记录查询接口，返回json
-        query_response = self.acs_client.do_action_with_exception(query_request)
-        # print(query_response.decode('utf-8'))
-
-        return query_response
 
 
 def mail_login(user, password, mail_server='smtp.exmail.qq.com'):
