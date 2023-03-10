@@ -8,9 +8,8 @@ role   : 缓存
 
 import base64
 import json
-import pickle
+# import pickle
 from .consts import const
-
 import redis
 from shortuuid import uuid
 from .configs import configs as my_configs
