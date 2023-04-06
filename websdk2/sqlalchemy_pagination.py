@@ -28,11 +28,15 @@ class Page(object):
 
 
 def paginate(query, order_by: str = None, **query_params):
-    page = int(query_params.get('page', 1))
+    # page = int(query_params.get('page', 1))
+    if 'page' not in query_params and 'page_number' not in query_params:
+        page = 1
+    else:
+        page = int(query_params.get('page', 1)) if 'page' in query_params else int(query_params.get('page_number', 1))
     page_size = int(query_params.get('limit')) if 'limit' in query_params else int(query_params.get('page_size', 10))
 
     if 'order_by' in query_params: order_by = query_params.get('order_by')
-    items_not_to_list = query_params.get('items_not_to_list')  ### 如果不序列化要额外加参数，主要为了连表查询
+    items_not_to_list = query_params.get('items_not_to_list')  # 如果不序列化要额外加参数，主要为了连表查询
 
     if page <= 0: raise AttributeError('page needs to be >= 1')
     if page_size <= 0: raise AttributeError('page_size needs to be >= 1')
