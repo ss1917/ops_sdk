@@ -12,11 +12,12 @@ import re
 from io import open
 from distutils.core import setup
 
-version = '0.1.4'
+version = '0.1.5'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('Finit requires at least Python 2.7 or 3.6 to run.')
     sys.exit(1)
+
 
 def get_data_files():
     data_files = [
@@ -38,7 +39,7 @@ setup(
     name='codosdk',
     version=version,
     description="CODO项目的Python SDK",
-    packages=['opssdk', 'opssdk.utils',  'websdk2', 'websdk2.apis', 'websdk2.cloud', 'websdk2.utils'],
+    packages=['opssdk', 'opssdk.utils', 'websdk2', 'websdk2.apis', 'websdk2.cloud', 'websdk2.utils'],
     url='https://github.com/ss1917/codo_sdk/',
     license='GPLv3',
     keywords="ops,opencodo,devops",
