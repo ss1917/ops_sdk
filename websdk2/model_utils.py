@@ -9,9 +9,11 @@ Desc   : models类
 from typing import Type
 from datetime import datetime
 from sqlalchemy.orm import class_mapper
+from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from .utils import get_contain_dict
 from .db_context import DBContextV2 as DBContext
-from sqlalchemy import text
+from .utils.pydantic_utils import sqlalchemy_to_pydantic, ValidationError, PydanticDelList
 
 
 def model_to_dict(model):
@@ -54,3 +56,65 @@ def GetInsertOrUpdateObj(cls: Type, str_filter: str, **kw) -> classmethod:
                 setattr(res, k, v)
 
         return res
+
+
+class CommonOptView:
+    def __init__(self, model, **kwargs):
+        self.model = model
+        self.pydantic_model_base = sqlalchemy_to_pydantic(model)
+        self.pydantic_model = sqlalchemy_to_pydantic(model, exclude=['id'])
+
+    @staticmethod
+    def del_data(data) -> dict:
+        if '_index' in data:
+            del data['_index']
+        if '_rowKey' in data:
+            del data['_rowKey']
+        return data
+
+    def handle_add(self, data: dict) -> dict:
+        data = self.del_data(data)
+        try:
+            self.pydantic_model(**data)
+        except ValidationError as e:
+            return dict(code=-1, msg=str(e))
+
+        try:
+            with DBContext('w', None, True) as db:
+                db.add(self.model(**data))
+        except IntegrityError as e:
+            return dict(code=-2, msg='不要重复添加')
+
+        except Exception as e:
+            return dict(code=-3, msg=f'{e}')
+
+        return dict(code=0, msg="创建成功")
+
+    def handle_update(self, data: dict) -> dict:
+        data = self.del_data(data)
+        try:
+            valid_data = self.pydantic_model_base(**data)
+        except ValidationError as e:
+            return dict(code=-1, msg=str(e))
+
+        try:
+            with DBContext('w', None, True) as db:
+                db.query(self.model).filter(self.model.id == valid_data.id).update(data)
+
+        except IntegrityError as e:
+            return dict(code=-2, msg=f'修改失败，已存在')
+
+        except Exception as err:
+            return dict(code=-3, msg=f'修改失败, {err}')
+
+        return dict(code=0, msg="修改成功")
+
+    def handle_delete(self, data: dict) -> dict:
+        try:
+            valid_data = PydanticDelList(**data)
+        except ValidationError as e:
+            return dict(code=-1, msg=str(e))
+
+        with DBContext('w', None, True) as session:
+            session.query(self.model).filter(self.model.id.in_(valid_data.id_list)).delete(synchronize_session=False)
+        return dict(code=0, msg=f"删除成功")

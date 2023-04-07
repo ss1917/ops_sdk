@@ -19,6 +19,9 @@ from sqlalchemy.orm.properties import ColumnProperty
 class PydanticDel(BaseModel):
     id: int
 
+class PydanticDelList(BaseModel):
+    id_list: list[int]
+
 
 class OrmConfig(BaseConfig):
     orm_mode = True
