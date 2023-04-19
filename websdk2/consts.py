@@ -84,6 +84,13 @@ const.MQ_PWD = 'MQ_PWD'
 const.DEFAULT_MQ_KEY = 'default'
 const.AGENT_MQ_KEY = 'agent'
 
+# consul
+const.CONSUL_CONFIG_ITEM = 'consuls'
+const.CONSUL_HOST_KEY = 'cs_host'
+const.CONSUL_PORT_KEY = 'cs_port'
+const.CONSUL_TOKEN_KEY = 'cs_token'
+const.CONSUL_SCHEME_KEY = 'cs_scheme'
+
 const.APP_NAME = 'app_name'
 const.LOG_PATH = 'log_path'
 const.LOG_BACKUP_COUNT = 'log_backup_count'
