@@ -86,6 +86,7 @@ const.AGENT_MQ_KEY = 'agent'
 
 # consul
 const.CONSUL_CONFIG_ITEM = 'consuls'
+const.DEFAULT_CS_KEY = 'default'
 const.CONSUL_HOST_KEY = 'cs_host'
 const.CONSUL_PORT_KEY = 'cs_port'
 const.CONSUL_TOKEN_KEY = 'cs_token'
