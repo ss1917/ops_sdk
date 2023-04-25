@@ -6,9 +6,10 @@ Date   : 2019年12月11日
 Desc   : models类
 """
 
-from typing import Type
+from typing import Type, Union
 from datetime import datetime
 from sqlalchemy.orm import class_mapper
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 from .utils import get_contain_dict
@@ -45,6 +46,30 @@ def GetInsertOrUpdateObj(cls: Type, str_filter: str, **kw) -> classmethod:
         existing = session.query(cls).filter(text(str_filter)).first()
     if not existing:
         res = cls()
+        for k, v in kw.items():
+            if hasattr(res, k):
+                setattr(res, k, v)
+        return res
+    else:
+        res = existing
+        for k, v in kw.items():
+            if hasattr(res, k):
+                setattr(res, k, v)
+
+        return res
+
+
+def insert_or_update(cls: Type[DeclarativeMeta], str_filter: str, **kw) -> Union[None, DeclarativeMeta]:
+    """
+    cls:            Model 类名
+    str_filter:      filter的参数.eg:"name='name-14'" 必须设置唯一 支持 and or
+    **kw:           【属性、值】字典,用于构建新实例，或修改存在的记录
+    session.add(insert_or_update(TableName, "name='name-114'", age=33114, height=123.14, name='name-114'))
+    """
+    with DBContext('r') as session:
+        existing = session.query(cls).filter(text(str_filter)).first()
+    if not existing:
+        res = cls(**kw)
         for k, v in kw.items():
             if hasattr(res, k):
                 setattr(res, k, v)
