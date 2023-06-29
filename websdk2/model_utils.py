@@ -89,6 +89,9 @@ class CommonOptView:
         self.pydantic_model_base = sqlalchemy_to_pydantic(model)
         self.pydantic_model = sqlalchemy_to_pydantic(model, exclude=['id'])
 
+    def prepare(self):
+        pass
+
     @staticmethod
     def del_data(data) -> dict:
         if '_index' in data:
@@ -98,6 +101,7 @@ class CommonOptView:
         return data
 
     def handle_add(self, data: dict) -> dict:
+        self.prepare()
         data = self.del_data(data)
         try:
             self.pydantic_model(**data)
@@ -116,6 +120,7 @@ class CommonOptView:
         return dict(code=0, msg="创建成功")
 
     def handle_update(self, data: dict) -> dict:
+        self.prepare()
         data = self.del_data(data)
         try:
             valid_data = self.pydantic_model_base(**data)
@@ -135,6 +140,7 @@ class CommonOptView:
         return dict(code=0, msg="修改成功")
 
     def handle_delete(self, data: dict) -> dict:
+        self.prepare()
         try:
             valid_data = PydanticDelList(**data)
         except ValidationError as e:
