@@ -6,7 +6,7 @@ Author  : shenshuo
 Date    : 2023/3/17
 Desc    : 对接LDAP登录认证
 """
-
+import json
 from ldap3 import Server, Connection, ALL, SUBTREE, ServerPool
 
 
@@ -15,6 +15,7 @@ class LdapApi:
         self._ldap_admin_dn = ldap_admin_dn
         self._ldap_admin_password = ldap_admin_password
         # ldap_server_pool = ServerPool(["172.16.0.102",'172.16.0.103'])
+        use_ssl = True if ldap_use_ssl in ['y', 'yes', True] else False
         self.ldap_server = Server(ldap_server_host, port=ldap_server_port, use_ssl=ldap_use_ssl)
 
     def ldap_server_test(self):
@@ -70,6 +71,43 @@ class LdapApi:
         except Exception as e:
             print("auth fail {}".format(e))
             return False, None, None
+
+    def ldap_auth_v3(self, username, password, search_base, conf_attr_dict, search_filter='cn'):
+        # 用户  密码  用户ou 映射数据  查询过滤 应和登录的账户关联
+        if not self.ldap_server_test():
+            return False, None
+
+        conn = Connection(self.ldap_server, user=self._ldap_admin_dn, password=self._ldap_admin_password,
+                          check_names=True, lazy=False, raise_exceptions=False)
+        conn.open()
+        conn.bind()
+        try:
+            if isinstance(conf_attr_dict, str): conf_attr_dict = json.loads(conf_attr_dict)
+            attr_list = list(conf_attr_dict.values())
+        except Exception as err:
+            attr_list = ['cn', 'sAMAccountName']
+        res = conn.search(search_base=search_base, search_filter=f'({search_filter}={username})',
+                          search_scope=SUBTREE, attributes=attr_list, paged_size=1000)
+
+        if not res:
+            return False, None
+        entry = conn.response[0]
+        dn = entry['dn']
+        attr_dict = entry['attributes']
+
+        # check password by dn
+        try:
+            conn2 = Connection(self.ldap_server, user=dn, password=password, check_names=True, lazy=False,
+                               raise_exceptions=False)
+            conn2.bind()
+            if conn2.result["description"] == "success":
+                return True, {k: attr_dict.get(v) for k, v in conf_attr_dict.items()}
+            else:
+                print("auth fail 2")
+                return False, None
+        except Exception as e:
+            print(f"auth fail 3 {e}")
+            return False, None
 
 
 if __name__ == "__main__":
