@@ -64,7 +64,7 @@ class SendMail(object):
             if self.mail_ssl:
                 '''SSL加密方式，通信过程加密，邮件数据安全, 使用端口465'''
                 # print('Use SSL SendMail')
-                server = smtplib.SMTP_SSL()
+                server = smtplib.SMTP_SSL(host=self.mail_host)
                 server.connect(self.mail_host, self.mail_port)  # 连接服务器
                 server.login(self.__mail_user, self.__mail_password)  # 登录操作
                 server.sendmail(self.__mail_user, to_list.split(','), msg.as_string())
