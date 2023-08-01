@@ -12,7 +12,7 @@ import re
 from io import open
 from distutils.core import setup
 
-version = '0.0.87'
+version = '0.0.88'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('Finit requires at least Python 2.7 or 3.6 to run.')
@@ -33,7 +33,7 @@ def get_install_requires():
     requires = ['fire==0.4.0', 'shortuuid==1.0.1', 'pymysql==0.9.3', 'sqlalchemy==1.3.23', 'python3-pika==0.9.14',
                 'PyJWT==2.0.1', 'requests==2.25.1', 'redis==2.10.6', 'tornado>=6.0', 'loguru>=0.5.3',
                 'cryptography==37.0.2', 'aliyun-python-sdk-core-v3==2.13.11', 'aliyun-python-sdk-dysmsapi==2.1.1',
-                'python-dateutil==2.7.5', 'ldap3==2.6', 'pydantic==1.7', 'pycryptodome==3.15.0', 'rsa==4.0']
+                'python-dateutil==2.7.5', 'ldap3==2.6', 'pydantic>=1.7', 'pycryptodome==3.15.0', 'rsa==4.0']
     # if sys.platform.startswith('win'):
     #    requires.append('bottle')
     return requires
