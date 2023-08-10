@@ -55,8 +55,10 @@ class Application(tornadoApp):
             ins_log.read_log('error', '%(tra)s' % dict(tra=traceback.format_exc()))
 
     def urls_meta_handle(self, urls):
-        ### 数据写入内存，启动的时候上报至权限管理
+        # 数据写入内存，启动的时候上报至权限管理
         urls_meta_list.extend([{"url": u[0], "name": u[2].get('handle_name')[0:30] if u[2].get('handle_name') else "",
+                                "method": u[2].get('method') if u[2].get('method') and len(
+                                    u[2].get('method')) < 100 else [],
                                 "status": u[2].get('handle_status')[0:2] if u[2].get('handle_status') else "y"} if len(
             u) > 2 else {"url": u[0], "name": "暂无", "status": "y"} for u in urls])
 
