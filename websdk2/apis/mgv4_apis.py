@@ -50,7 +50,7 @@ class AdminV4APIS:
                                 field_help={
                                     'page': '分页/第几页',  ### 分页/第几页
                                     'limit': '分页/每页多少个',  ### 分页/每页多少个
-                                    'value': '模糊查询'  ### 模糊查询
+                                    'searchVal': '模糊查询'  ### 模糊查询
                                 },
                                 description='查看常规角色列表')
 
@@ -61,10 +61,10 @@ class AdminV4APIS:
                                   },
                                   description='查看所有基础角色')
 
-    get_all_role_user = dict(method='GET',
-                             url=f'{route_prefix}/v4/all_role_user/',
-                             params={
-                             },
-                             field_help={
-                             },
-                             description='获取所有角色和角色内内用户信息')
+    get_all_role_user_v4 = dict(method='GET',
+                                url=f'{route_prefix}/v4/all_role_user/',
+                                params={
+                                },
+                                field_help={
+                                },
+                                description='获取所有角色和角色内内用户信息')
