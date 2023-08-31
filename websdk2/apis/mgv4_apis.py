@@ -19,6 +19,15 @@ class AdminV4APIS:
                          field_help={},
                          description='查看用户列表')
 
+    get_user_contact_info = dict(method='GET',
+                                 url=f'{route_prefix}/v4/user/send_addr/',
+                                 params={},
+                                 field_help={
+                                     'users_str': '用户id  用户名  昵称  半角逗号分隔',  # 用户  半角逗号分隔
+                                     'roles_str': '角色id   半角逗号分隔'  # 角色   半角逗号分隔
+                                 },
+                                 description='获取用户的联系方式，手机/邮箱/钉钉ID/飞书ID')
+
     get_users = dict(method='GET',
                      url=f'{route_prefix}/v4/user/',
                      params={
