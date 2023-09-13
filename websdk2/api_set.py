@@ -10,11 +10,11 @@ Desc    : 解释一下吧
 
 import json
 from .tools import singleton
-from .apis import AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS
+from .apis import AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS
 
 
 @singleton
-class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS):
+class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS):
     def __init__(self):
         pass
 

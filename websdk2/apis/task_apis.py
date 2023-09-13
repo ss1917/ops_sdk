@@ -57,3 +57,24 @@ class TaskAPIS:
         },
         description='动态分组 获取动态分组详细数据'
     )
+    get_current_order_list = dict(method='GET',
+                                  url=f'{job_prefix}/v1/flow/current/list/',
+                                  params={
+                                      'page': 1,
+                                      'limit': 201,
+                                  },
+                                  field_help={
+
+                                  },
+                                  description='查看订单列表'
+                                  )
+    get_history_order_list = dict(method='GET',
+                                  url=f'{job_prefix}/v1/flow/history/list/',
+                                  params={
+                                      'page': 1,
+                                      'limit': 201,
+                                  },
+                                  field_help={
+
+                                  },
+                                  description='查看订单列表')
