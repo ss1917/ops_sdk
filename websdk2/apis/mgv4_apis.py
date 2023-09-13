@@ -53,6 +53,22 @@ class AdminV4APIS:
                      },
                      description='操作用户数据，支持增删改，请修改method和body数据')
 
+    get_biz = dict(method='GET',
+                   url=f'{route_prefix}/v4/biz/',
+                   params={
+                       'page': 1,
+                       'limit': 201
+                   },
+                   field_help={},
+                   description='权限中心-业务管理-同步业务可以用')
+
+    get_biz_list = dict(method='GET',
+                        url=f'{route_prefix}/v4/biz/list/',
+                        params={
+                        },
+                        field_help={},
+                        description='PAAS基础功能-查看业务列表和切换')
+
     get_normal_role_list = dict(method='GET',
                                 url=f'{route_prefix}/v4/role/list/',
                                 params={},
