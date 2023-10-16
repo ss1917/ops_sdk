@@ -18,7 +18,7 @@ from tornado.web import RequestHandler
 from .logger import init_logging
 from .configs import configs
 
-options.log_file_prefix = "/tmp/codo.log"
+# options.log_file_prefix = "/tmp/codo.log"
 define("addr", default='0.0.0.0', help="run on the given ip address", type=str)
 define("port", default=8000, help="run on the given port", type=int)
 define("progid", default=str(uuid()), help="tornado progress id", type=str)
