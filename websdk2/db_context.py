@@ -103,9 +103,10 @@ def init_engine_v2(**settings):
         dbname = db_conf[const.DBNAME_KEY]
         engine = create_engine('mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8mb4'
                                .format(user=dbuser, pwd=quote_plus(dbpwd), host=dbhost, port=dbport, dbname=dbname),
-                               logging_name=dbkey, poolclass=None, pool_size=5, max_overflow=20, pool_recycle=3600,
-                               pool_pre_ping=True)
+                               logging_name=dbkey, poolclass=None, pool_size=10, max_overflow=50, pool_recycle=3600,
+                               pool_pre_ping=True, pool_timeout=60)
         engines[dbkey] = engine
+
 
 class DBContextV2(object):
     def __init__(self, rw='r', db_key=None, need_commit=False, **settings):

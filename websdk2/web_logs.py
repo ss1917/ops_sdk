@@ -11,8 +11,7 @@ import os
 import time
 from shortuuid import uuid
 
-log_fmt = ''.join(('PROGRESS:%(progress_id) -5s %(levelname) ', '-10s %(asctime)s %(name) -25s %(funcName) '
-                                                                '-30s LINE.NO:%(lineno) -5d : %(message)s'))
+log_fmt = ''.join(('%(levelname) ', '-10s %(asctime)s %(name) -10s %(funcName) ' '-30s LINE.NO:%(lineno) -5d : %(message)s'))
 log_key = 'logger_key'
 
 
