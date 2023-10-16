@@ -6,6 +6,7 @@ date   : 2018年1月12日13:43:27
 role   : 定制 Application
 """
 
+import os
 import logging
 from shortuuid import uuid
 from tornado import httpserver, ioloop
@@ -17,6 +18,7 @@ from tornado.web import RequestHandler
 from .web_logs import init_logging
 from .configs import configs
 
+options.log_file_prefix = os.path.join(os.path.dirname(os.path.dirname(__file__)), f'log/codo.log')
 define("addr", default='0.0.0.0', help="run on the given ip address", type=str)
 define("port", default=8000, help="run on the given port", type=int)
 define("progid", default=str(uuid()), help="tornado progress id", type=str)
