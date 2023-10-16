@@ -109,18 +109,19 @@
 #             self.__channel.basic_publish(exchange=self.__exchange, routing_key=self.__routing_key, body=body)
 #         ins_log.read_log('info', 'Publish message %s sucessfuled.' % body)
 
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*-coding:utf-8-*-
 """
 Author : ming
 date   : 2017/3/3 下午9:31
 role   : rabbitMQ 操作类
 """
+
+import logging
 import traceback
 import pika
 from .consts import const
 from .configs import configs
-from .web_logs import ins_log
 from .error import ConfigError
 
 
@@ -166,7 +167,7 @@ class MessageQueueBase(object):
 
         channel.basic_qos(prefetch_count=1)
         channel.basic_consume(result.method.queue, self.call_back, self.__no_ack)
-        ins_log.read_log('info', '[*]Queue %s started.' % (result.method.queue))
+        logging.info('[*]Queue %s started.' % (result.method.queue))
 
         channel.start_consuming()
 
@@ -189,13 +190,13 @@ class MessageQueueBase(object):
 
     def call_back(self, ch, method, properties, body):
         try:
-            ins_log.read_log('info', 'get message')
+            logging.info('get message')
             self.on_message(body)
 
             if not self.__no_ack:
                 ch.basic_ack(delivery_tag=method.delivery_tag)
         except:
-            ins_log.read_log('error', traceback.format_exc())
+            logging.error(traceback.format_exc())
             if not self.__no_ack:
                 ch.basic_nack(delivery_tag=method.delivery_tag)
 
@@ -218,4 +219,4 @@ class MessageQueueBase(object):
                                          properties=properties)
         else:
             self.__channel.basic_publish(exchange=self.__exchange, routing_key=self.__routing_key, body=body)
-        ins_log.read_log('info', 'Publish message %s sucessfuled.' % body)
+        logging.info('Publish message %s sucessfuled.' % body)
