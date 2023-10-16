@@ -6,13 +6,15 @@ date   : 2018年1月12日13:43:27
 role   : 定制 Application
 """
 
+import logging
 from shortuuid import uuid
 from tornado import httpserver, ioloop
 from tornado import options as tnd_options
 from tornado.options import options, define
 from tornado.web import Application as tornadoApp
 from tornado.web import RequestHandler
-from .web_logs import ins_log
+# from .web_logs import ins_log
+from .web_logs import init_logging
 from .configs import configs
 
 define("addr", default='0.0.0.0', help="run on the given ip address", type=str)
@@ -28,7 +30,7 @@ class Application(tornadoApp):
     def __init__(self, handlers=None, default_host="", transforms=None, **settings):
         tnd_options.parse_command_line()
         if configs.can_import: configs.import_dict(**settings)
-        ins_log.read_log('info', '%s' % options.progid)
+        # ins_log.read_log('info', '%s' % options.progid)
         handlers.extend([(r"/v1/probe/meta/urls/", MetaProbe), ])
         self.urls_meta_handle(handlers)
         max_buffer_size = configs.get('max_buffer_size')
@@ -44,15 +46,15 @@ class Application(tornadoApp):
         :return:
         """
         try:
-            ins_log.read_log('info', 'progressid: %(progid)s' % dict(progid=options.progid))
-            ins_log.read_log('info', 'server address: %(addr)s:%(port)d' % dict(addr=options.addr, port=options.port))
-            ins_log.read_log('info', 'web server start sucessfuled.')
+            init_logging()
+            logging.info('server address: %(addr)s:%(port)d' % dict(addr=options.addr, port=options.port))
+            logging.info('web server start sucessfuled.')
             self.io_loop.start()
         except KeyboardInterrupt:
             self.io_loop.stop()
         except:
             import traceback
-            ins_log.read_log('error', '%(tra)s' % dict(tra=traceback.format_exc()))
+            logging.error('%(tra)s' % dict(tra=traceback.format_exc()))
 
     def urls_meta_handle(self, urls):
         # 数据写入内存，启动的时候上报至权限管理
