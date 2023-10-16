@@ -12,7 +12,7 @@ import re
 from io import open
 from distutils.core import setup
 
-version = '0.1.29'
+version = '0.1.30'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('Finit requires at least Python 2.7 or 3.6 to run.')
