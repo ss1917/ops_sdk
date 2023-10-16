@@ -15,7 +15,7 @@ from tornado.options import options, define
 from tornado.web import Application as tornadoApp
 from tornado.web import RequestHandler
 # from .web_logs import ins_log
-# from .logger import init_logging
+from .logger import init_logging
 from .configs import configs
 
 # options.log_file_prefix = "/tmp/codo.log"
@@ -48,7 +48,7 @@ class Application(tornadoApp):
         :return:
         """
         try:
-            # init_logging()
+            init_logging()
             logging.info('server address: %(addr)s:%(port)d' % dict(addr=options.addr, port=options.port))
             logging.info('web server start sucessfuled.')
             self.io_loop.start()
