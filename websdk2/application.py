@@ -14,8 +14,6 @@ from tornado import options as tnd_options
 from tornado.options import options, define
 from tornado.web import Application as tornadoApp
 from tornado.web import RequestHandler
-# from .web_logs import ins_log
-# from .logger import init_logging
 from .configs import configs
 
 # options.log_file_prefix = "/tmp/codo.log"
