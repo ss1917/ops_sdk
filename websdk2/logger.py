@@ -28,5 +28,3 @@ def init_logging():
     logging.getLogger().addHandler(stdout_handler)
     logging.info('[APP Logging Init] logging has been started')
 
-
-init_logging()

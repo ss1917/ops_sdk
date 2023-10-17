@@ -15,12 +15,13 @@ from tornado.options import options, define
 from tornado.web import Application as tornadoApp
 from tornado.web import RequestHandler
 from .configs import configs
+from .logger import init_logging
 
 # options.log_file_prefix = "/tmp/codo.log"
 define("addr", default='0.0.0.0', help="run on the given ip address", type=str)
 define("port", default=8000, help="run on the given port", type=int)
 define("progid", default=str(uuid()), help="tornado progress id", type=str)
-
+init_logging()
 urls_meta_list = []
 
 
