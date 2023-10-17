@@ -121,3 +121,7 @@ def timeit(func):
         return result
 
     return wrapper
+
+
+ins_log.write_log('info', 'xxxx')
+ins_log.read_log('info', 'xxxx')
