@@ -185,6 +185,7 @@ const.STATE_IGNORE = '10'  # 忽略
 const.STATE_QUEUE = '11'  # 排队中
 const.EXEC_TIMEOUT = 1800
 
-### 节点地址
+## 节点地址
 const.NODE_ADDRESS = 'NODE_ADDRESS'
 const.EXEC_NODE_MAP_KEY = 'EXEC_NODE_MAP_KEY'
+const.AGENT_USED_KEY = "agent_is_used_map_mark_key"
