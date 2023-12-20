@@ -10,8 +10,9 @@ Desc   : 处理API请求
 import json
 import base64
 import hmac
-from shortuuid import uuid
+import logging
 import traceback
+from shortuuid import uuid
 # from .cache_context import cache_conn
 from tornado.escape import utf8, _unicode
 from tornado.web import RequestHandler, HTTPError
@@ -27,6 +28,7 @@ class BaseHandler(RequestHandler):
         self.token_verify = False
         self.tenant_filter = False
         self.params = {}
+        self.req_data = {}
         super(BaseHandler, self).__init__(*args, **kwargs)
 
     def initialize(self, *args, **kwargs):
@@ -49,6 +51,15 @@ class BaseHandler(RequestHandler):
             self.params['filter_map'] = {**filter_map, **self.request_tenant_map}
 
         if "auth_key" in self.params: self.params.pop('auth_key')
+
+    def get_req_body_dict(self):
+        if self.request.method in ("POST", "PUT", "PATCH", "DELETE"):
+            try:
+                self.req_data = json.loads(self.request.body.decode("utf-8"))
+            except json.JSONDecodeError as err:
+                logging.error(f"Error parsing JSON data in request {self.request.method} at {self.request.path}: {err}")
+            except Exception as err:
+                logging.error(f"Unexpected error in request {self.request.method} at {self.request.path}: {err}")
 
     def codo_csrf(self):
         pass
