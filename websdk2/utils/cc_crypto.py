@@ -10,8 +10,8 @@ Desc    : 加密
 
 import base64
 from cryptography.fernet import Fernet
-from .consts import const
-from .configs import configs
+from ..consts import const
+from ..configs import configs
 
 
 class AESCryptoV3:
