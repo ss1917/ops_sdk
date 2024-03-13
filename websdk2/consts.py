@@ -119,6 +119,8 @@ const.REGION = "cn-hangzhou"
 const.PRODUCT_NAME = "Dysmsapi"
 const.DOMAIN = "dysmsapi.aliyuncs.com"
 
+# crypto
+const.AES_CRYPTO_KEY = 'aes_crypto_key'
 ### app settings
 const.APP_SETTINGS = 'APP_SETTINGS'
 ### all user info
