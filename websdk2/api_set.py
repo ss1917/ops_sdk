@@ -20,8 +20,8 @@ class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentA
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self):
-        super().__init__()
+    # def __init__(self):
+    #     super().__init__()
 
     def __setattr__(self, name, value):
         if name in self.__dict__:
