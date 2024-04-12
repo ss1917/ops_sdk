@@ -52,24 +52,6 @@ class AcsClient:
                                     data=kwargs.get('body'), timeout=self.request_timeout)
         return response
 
-    def do_action_v3(self, **kwargs):
-        kwargs = self.with_params_data_url(**kwargs)
-
-        request_params = {
-            'method': kwargs.get('method'),
-            'url': kwargs.get('url'),
-            'headers': self.headers,
-            'timeout': self.request_timeout
-        }
-
-        if kwargs.get('json'):
-            request_params['json'] = kwargs['json']
-        else:
-            request_params['data'] = kwargs.get('body')
-
-        response = requests.request(**request_params)
-        return response
-
     async def do_action_with_async(self, **kwargs):
 
         body = await self._implementation_of_do_action(**kwargs)
