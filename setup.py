@@ -7,12 +7,9 @@ desc   : CODO SDK
 """
 
 import sys
-import os
-import re
-from io import open
 from distutils.core import setup
 
-version = '0.1.43'
+VERSION = '0.1.44'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('Finit requires at least Python 2.7 or 3.6 to run.')
@@ -30,14 +27,12 @@ def get_install_requires():
     requires = ['fire==0.5.0', 'shortuuid==1.0.11', 'pymysql==0.9.3', 'sqlalchemy==1.3.23', 'pika==1.3.1',
                 'PyJWT==2.0.1', 'requests==2.28.2', 'redis==4.5.1', 'tornado>=6.0', 'loguru>=0.6.0',
                 'cryptography==39.0.2', 'ldap3==2.9', 'pydantic>=1.10.5']
-    # if sys.platform.startswith('win'):
-    #    requires.append('bottle')
     return requires
 
 
 setup(
     name='codosdk',
-    version=version,
+    version=VERSION,
     description="CODO项目的Python SDK",
     packages=['opssdk', 'opssdk.utils', 'websdk2', 'websdk2.apis', 'websdk2.cloud', 'websdk2.utils'],
     url='https://github.com/ss1917/codo_sdk/',
