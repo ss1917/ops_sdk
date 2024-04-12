@@ -93,9 +93,10 @@ class AcsClient:
         if not kwargs['method']: kwargs['method'] = 'GET'
 
         body = kwargs.get('body', {})
+        req_json = kwargs.get('json')
 
         if kwargs['method'] in ['POST', 'post', 'PATCH', 'patch', 'PUT', 'put']:
-            if not body:
+            if not body and req_json:
                 raise TypeError('method {},  body can not be empty'.format(kwargs['method']))
             else:
                 if not isinstance(body, dict):  json.loads(body)
