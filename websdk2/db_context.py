@@ -27,7 +27,7 @@ def init_engine(**settings):
         dbhost = db_conf[const.DBHOST_KEY]
         dbport = db_conf[const.DBPORT_KEY]
         dbname = db_conf[const.DBNAME_KEY]
-        engine = create_engine('mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8'
+        engine = create_engine('mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8mb4'
                                .format(user=dbuser, pwd=quote_plus(dbpwd), host=dbhost, port=dbport, dbname=dbname),
                                # logging_name=dbkey)
                                logging_name=dbkey, poolclass=NullPool)
@@ -43,7 +43,7 @@ def get_db_url(dbkey):
     dbport = db_conf.get('port', 3306)
     dbname = db_conf['name']
 
-    return 'mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8'.format(user=dbuser, pwd=quote_plus(dbpwd),
+    return 'mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8mb4'.format(user=dbuser, pwd=quote_plus(dbpwd),
                                                                                      host=dbhost, port=dbport,
                                                                                      dbname=dbname, poolclass=NullPool)
 

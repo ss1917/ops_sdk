@@ -5,7 +5,7 @@ Version : 0.0.1
 Contact : 191715030@qq.com
 Author  : shenshuo
 Date    : 2019/12/12 17:56
-Desc    : 解释一下吧
+Desc    : API集合
 """
 
 import json
