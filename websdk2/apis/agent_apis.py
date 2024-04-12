@@ -31,8 +31,6 @@ class AgentAPIS:
                           url=batch_add_task_url,
                           body={
                           },
-                          json={
-                          },
                           field_help={
                           },
                           description='批量下发任务')
@@ -40,8 +38,6 @@ class AgentAPIS:
     sync_files_task = dict(method='POST',
                            url=sync_files_url,
                            body={
-                           },
-                           json={
                            },
                            field_help={
                            },
