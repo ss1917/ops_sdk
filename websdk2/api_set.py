@@ -9,14 +9,19 @@ Desc    : API集合
 """
 
 import json
-from .tools import singleton
 from .apis import AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentAPIS
 
 
-@singleton
 class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentAPIS):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self):
-        pass
+        super().__init__()
 
     def __setattr__(self, name, value):
         if name in self.__dict__:
@@ -31,11 +36,10 @@ class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentA
         if not value.get('description'):
             raise TypeError("Value must have description")
 
-        if value.get('body'):
-            if not isinstance(value.get('body'), dict):
-                json.loads(value)
+        if value.get('body') and not isinstance(value.get('body'), dict):
+            raise TypeError("Body value must be a dict")
 
-        self.__dict__[name] = value
+        super().__setattr__(name, value)
 
 
 api_set = ConstAPIS()

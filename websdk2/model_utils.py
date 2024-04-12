@@ -59,24 +59,29 @@ def GetInsertOrUpdateObj(cls: Type, str_filter: str, **kw) -> classmethod:
         return res
 
 
-def insert_or_update(cls: Type[DeclarativeMeta], str_filter: str, **kw) -> Union[None, DeclarativeMeta]:
+def insert_or_update(cls: Type[DeclarativeMeta], str_filter: str, **kwargs) -> Union[None, DeclarativeMeta]:
     """
-    cls:            Model 类名
-    str_filter:      filter的参数.eg:"name='name-14'" 必须设置唯一 支持 and or
-    **kw:           【属性、值】字典,用于构建新实例，或修改存在的记录
-    session.add(insert_or_update(TableName, "name='name-114'", age=33114, height=123.14, name='name-114'))
+    Insert or update a record in the database.
+
+    Args:
+        cls (Type[DeclarativeMeta]): Model class.
+        str_filter (str): Filter parameters. e.g., "name='name-14'". Must be unique. Supports 'and' and 'or'.
+        **kwargs: Attributes and values dictionary used to construct a new instance or modify an existing record.
+
+    Returns:
+        Union[None, DeclarativeMeta]: Returns None if no existing record found, otherwise returns the updated or inserted record.
     """
     with DBContext('r') as session:
         existing = session.query(cls).filter(text(str_filter)).first()
     if not existing:
-        res = cls(**kw)
-        for k, v in kw.items():
+        res = cls(**kwargs)
+        for k, v in kwargs.items():
             if hasattr(res, k):
                 setattr(res, k, v)
         return res
     else:
         res = existing
-        for k, v in kw.items():
+        for k, v in kwargs.items():
             if hasattr(res, k):
                 setattr(res, k, v)
 
