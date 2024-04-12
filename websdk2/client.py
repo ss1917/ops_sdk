@@ -60,9 +60,9 @@ class AcsClient:
     async def _implementation_of_do_action(self, **kwargs):
         http_client = AsyncHTTPClient()
         request = self.with_params_data_url(**kwargs)
-
+        # json=kwargs.get('json')
         response = await http_client.fetch(request.get('url'), method=request.get('method'), raise_error=False,
-                                           body=request.get('body'), json=kwargs.get('json'), headers=self.headers,
+                                           body=request.get('body'), headers=self.headers,
                                            request_timeout=self.request_timeout)
 
         return response.body
