@@ -37,19 +37,19 @@ class AcsClient:
         self.headers['Sdk-Method'] = 'zQtY4sw7sqYspVLrqV'
         self.request_timeout = request_timeout
 
-    ###设置返回为json
+    # 设置返回为json
     def do_action(self, **kwargs):
         kwargs = self.with_params_data_url(**kwargs)
         response = requests.request(kwargs.get('method'), kwargs.get('url'), headers=self.headers,
-                                    data=kwargs.get('body'), timeout=self.request_timeout)
+                                    data=kwargs.get('body'), json=kwargs.get('json'), timeout=self.request_timeout)
 
         return response.text
 
-    ### 返回完整信息
+    # 返回完整信息
     def do_action_v2(self, **kwargs):
         kwargs = self.with_params_data_url(**kwargs)
         response = requests.request(kwargs.get('method'), kwargs.get('url'), headers=self.headers,
-                                    data=kwargs.get('body'), timeout=self.request_timeout)
+                                    data=kwargs.get('body'), json=kwargs.get('json'), timeout=self.request_timeout)
         return response
 
     async def do_action_with_async(self, **kwargs):
@@ -62,7 +62,7 @@ class AcsClient:
         request = self.with_params_data_url(**kwargs)
 
         response = await http_client.fetch(request.get('url'), method=request.get('method'), raise_error=False,
-                                           body=request.get('body'), headers=self.headers,
+                                           body=request.get('body'), json=kwargs.get('json'), headers=self.headers,
                                            request_timeout=self.request_timeout)
 
         return response.body
