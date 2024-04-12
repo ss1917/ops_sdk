@@ -14,7 +14,7 @@ from .apis import AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, Agen
 
 
 @singleton
-class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentAPIS):
+class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS):
     def __init__(self):
         pass
 
@@ -35,6 +35,8 @@ class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentA
             if not isinstance(value.get('body'), dict):
                 json.loads(value)
 
+        # if value.get('body') and not isinstance(value.get('body'), dict):
+        #     raise TypeError("Body value must be a dict")
         self.__dict__[name] = value
 
 
