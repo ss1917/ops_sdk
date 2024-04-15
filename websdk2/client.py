@@ -86,12 +86,13 @@ class AcsClient:
         return response.body
 
     def with_params_data_url(self, **kwargs):
-        ### 重新组装URL
+        # 重新组装URL
         url = "{}{}".format(self.endpoint, kwargs['url'])
         kwargs['url'] = url
 
         if not kwargs['method']: kwargs['method'] = 'GET'
 
+        # logging.debug(f"with_params_data_url {kwargs}")
         body = kwargs.get('body', {})
         req_json = kwargs.get('json')
 
@@ -99,7 +100,8 @@ class AcsClient:
             if not (body or req_json):
                 raise TypeError('method {},  body can not be empty'.format(kwargs['method']))
             else:
-                if not isinstance(body, dict):  json.loads(body)
+                if not isinstance(body, dict):
+                    json.loads(body)
 
         if body and isinstance(body, dict): kwargs['body'] = json.dumps(body)
 

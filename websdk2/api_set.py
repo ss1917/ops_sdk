@@ -8,9 +8,6 @@ Date    : 2019/12/12 17:56
 Desc    : API集合
 """
 
-import json
-import logging
-
 from .tools import singleton
 from .apis import AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentAPIS
 
@@ -33,12 +30,12 @@ class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentA
         if not value.get('description'):
             raise TypeError("Value must have description")
 
-        if value.get('body'):
-            if not isinstance(value.get('body'), (dict, list)):
-                json.loads(value.get('body'))
-
-        if value.get('body') and not isinstance(value.get('body'), (dict, list)):
-            raise TypeError("Body value must be a dict")
+        # body_data = value.get('body')
+        # if body_data is not None and not isinstance(body_data, (dict, list)):
+        #     try:
+        #         json.loads(body_data)
+        #     except (TypeError, ValueError):
+        #         raise TypeError("Body data cannot be loaded as JSON")
 
         self.__dict__[name] = value
 
