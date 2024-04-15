@@ -9,6 +9,8 @@ Desc    : API集合
 """
 
 import json
+import logging
+
 from .tools import singleton
 from .apis import AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentAPIS
 
@@ -33,10 +35,11 @@ class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentA
 
         if value.get('body'):
             if not isinstance(value.get('body'), (dict, list)):
-                json.loads(value)
+                json.loads(value.get('body'))
 
-        # if value.get('body') and not isinstance(value.get('body'), dict):
-        #     raise TypeError("Body value must be a dict")
+        if value.get('body') and not isinstance(value.get('body'), (dict, list)):
+            raise TypeError("Body value must be a dict")
+
         self.__dict__[name] = value
 
 
