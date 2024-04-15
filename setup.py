@@ -9,7 +9,7 @@ desc   : CODO SDK
 import sys
 from distutils.core import setup
 
-VERSION = '0.1.60'
+VERSION = '0.1.61'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('This program requires at least Python 2.7 or 3.6 to run.')

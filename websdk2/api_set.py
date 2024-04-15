@@ -32,7 +32,7 @@ class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentA
             raise TypeError("Value must have description")
 
         if value.get('body'):
-            if not isinstance(value.get('body'), dict):
+            if not isinstance(value.get('body'), (dict, list)):
                 json.loads(value)
 
         # if value.get('body') and not isinstance(value.get('body'), dict):
