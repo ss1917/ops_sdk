@@ -85,6 +85,19 @@ class AcsClient:
 
         return response.body
 
+    # import aiohttp
+    # async def do_action_with_async_v2(self, **kwargs):
+    #     body = await self._implementation_of_do_aiohttp(**kwargs)
+    #     return body
+    #
+    # async def _implementation_of_do_aiohttp(self, **kwargs):
+    #     async with aiohttp.ClientSession() as session:
+    #         request = self.with_params_data_url(**kwargs)
+    #         async with session.request(method=request['method'], url=request['url'],
+    #                                    headers=self.headers, data=request.get('body'),
+    #                                    timeout=self.request_timeout) as response:
+    #             return await response.read()
+
     def with_params_data_url(self, **kwargs):
         # 重新组装URL
         url = "{}{}".format(self.endpoint, kwargs['url'])
