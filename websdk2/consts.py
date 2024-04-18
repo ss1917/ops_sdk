@@ -76,11 +76,13 @@ const.RD_PASSWORD_KEY = 'password'
 const.DEFAULT_RD_KEY = 'default'
 
 # ETCD
-const.DEFAULT_ETCD_HOST = "DEFAULT_ETCD_HOST"
-const.DEFAULT_ETCD_PORT = "DEFAULT_ETCD_PORT"
-const.DEFAULT_ETCD_PROTOCOL = "DEFAULT_ETCD_PROTOCOL"
-const.DEFAULT_ETCD_USER = "DEFAULT_ETCD_USER"
-const.DEFAULT_ETCD_PWD = "DEFAULT_ETCD_PWD"
+const.DEFAULT_ETCD_KEY = "default"
+const.BACKUP_ETCD_KEY = "backup"
+const.DEFAULT_ETCD_HOST = "host"
+const.DEFAULT_ETCD_PORT = "port"
+const.DEFAULT_ETCD_PROTOCOL = "protocol"
+const.DEFAULT_ETCD_USER = "user"
+const.DEFAULT_ETCD_PWD = "pwd"
 
 # MQ
 const.MQ_CONFIG_ITEM = 'mqs'
