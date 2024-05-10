@@ -94,6 +94,12 @@ const.MQ_PWD = 'MQ_PWD'
 const.DEFAULT_MQ_KEY = 'default'
 const.AGENT_MQ_KEY = 'agent'
 
+# JMS
+const.JMS_CONFIG_ITEM = 'jmss'
+const.JMS_API_BASE_URL = "jms_url"
+const.JMS_API_KEY_ID = "jms_key_id"
+const.JMS_API_KEY_SECRET = "jms_key_secret"
+
 # consul
 const.CONSUL_CONFIG_ITEM = 'consuls'
 const.DEFAULT_CS_KEY = 'default'
