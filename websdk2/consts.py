@@ -96,6 +96,7 @@ const.AGENT_MQ_KEY = 'agent'
 
 # JMS
 const.JMS_CONFIG_ITEM = 'jmss'
+const.DEFAULT_JMS_KEY = 'default'
 const.JMS_API_BASE_URL = "jms_url"
 const.JMS_API_KEY_ID = "jms_key_id"
 const.JMS_API_KEY_SECRET = "jms_key_secret"
