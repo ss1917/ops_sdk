@@ -57,7 +57,7 @@ class AuthToken:
             exp_days = kwargs.get('exp_days', 1)
             exp_hours = kwargs.get('exp_hours')
             if exp_hours and isinstance(exp_hours, int) and exp_days == 1:
-                exp_time =  datetime.datetime.utcnow() + datetime.timedelta(hours=int(exp_hours),  seconds=30)
+                exp_time = datetime.datetime.utcnow() + datetime.timedelta(hours=int(exp_hours), seconds=30)
             else:
                 exp_time = datetime.datetime.utcnow() + datetime.timedelta(days=int(exp_days), seconds=30)
 
@@ -84,6 +84,31 @@ class AuthToken:
 
         except Exception as e:
             return e
+
+    def encode_2fa_token(self, **kwargs):
+        try:
+            exp_days = kwargs.get('exp_days', 1)
+            exp_hours = kwargs.get('exp_hours')
+
+            current_time = datetime.datetime.utcnow()
+            exp_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=exp_hours) if exp_hours
+                        else datetime.datetime.utcnow() + datetime.timedelta(days=exp_days)) + datetime.timedelta(
+                seconds=30)
+
+            payload = {
+                'exp': exp_time,
+                'nbf': current_time - datetime.timedelta(seconds=10),
+                'iat': current_time,
+                'data': {
+                    'user_id': kwargs.get('user_id', ''),
+                    'email': kwargs.get('email', '')
+                }
+            }
+
+            return f"2fa_token.{jwt.encode(payload, self.token_secret, algorithm='HS256')}"
+
+        except Exception as e:
+            return str(e)
 
     def decode_auth_token(self, auth_token):
         """
