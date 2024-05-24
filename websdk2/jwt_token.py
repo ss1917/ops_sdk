@@ -85,7 +85,7 @@ class AuthToken:
         except Exception as e:
             return e
 
-    def encode_2fa_token(self, **kwargs):
+    def encode_mfa_token(self, **kwargs):
         try:
             exp_days = kwargs.get('exp_days', 1)
             exp_hours = kwargs.get('exp_hours')
@@ -105,7 +105,7 @@ class AuthToken:
                 }
             }
 
-            return f"2fa_token.{jwt.encode(payload, self.token_secret, algorithm='HS256')}"
+            return f"mfa_token.{jwt.encode(payload, self.token_secret, algorithm='HS256')}"
 
         except Exception as e:
             return str(e)
