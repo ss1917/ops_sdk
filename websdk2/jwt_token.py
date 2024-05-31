@@ -105,7 +105,7 @@ class AuthToken:
                 }
             }
 
-            return f"mfa_token.{jwt.encode(payload, self.token_secret, algorithm='HS256')}"
+            return jwt.encode(payload, self.token_secret, algorithm='HS256')
 
         except Exception as e:
             return str(e)
