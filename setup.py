@@ -18,7 +18,7 @@ if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
 
 def get_data_files():
     data_files = [
-        ('share/doc/codo_sdk', ['README.md'])
+        ('share/doc/ops_sdk', ['README.md'])
     ]
     return data_files
 
@@ -45,17 +45,18 @@ classifiers = [
 ]
 
 setup(
-    name='codosdk',
+    name='opssdk',
     version=VERSION,
     description="CODO项目的Python SDK",
     packages=['opssdk', 'opssdk.utils', 'websdk2', 'websdk2.apis', 'websdk2.cloud', 'websdk2.utils'],
-    url='https://github.com/ss1917/codo_sdk/',
+    url='https://github.com/ss1917/ops_sdk/',
     license='GPLv3',
     keywords="ops,opencodo,devops",
     install_requires=get_install_requires(),
     author='shenshuo',
     author_email='191715030@qq.com',
     long_description='SDK of the operation and maintenance script logs operate',
+    long_description_content_type='text/markdown',
     include_package_data=True,
     data_files=get_data_files(),
     python_requires=">=3.6",
