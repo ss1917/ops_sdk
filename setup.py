@@ -30,6 +30,20 @@ def get_install_requires():
     return requires
 
 
+classifiers = [
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console :: Curses',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+]
+
 setup(
     name='codosdk',
     version=VERSION,
@@ -44,16 +58,7 @@ setup(
     long_description='SDK of the operation and maintenance script logs operate',
     include_package_data=True,
     data_files=get_data_files(),
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console :: Curses',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.9'
-    ],
+    python_requires=">=3.6",
+    classifiers=classifiers,
     platforms='any'
 )

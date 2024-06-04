@@ -6,15 +6,15 @@ on:
 jobs:
   build:
     name: Publish Python 🐍 distributions 📦 to PyPI
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 1
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v1
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.9
+        python-version: '3.11'
     - name: Install twine
       run: >-
         python -m
@@ -31,4 +31,3 @@ jobs:
         password: ${{ secrets.pypi_password }}
         # repository_url: https://pypi.org/legacy/
 
-      
