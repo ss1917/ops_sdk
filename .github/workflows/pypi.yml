@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  # schedule:
+  #   - cron: '0 4 */1 * *'
 
 jobs:
   build:
@@ -29,11 +31,12 @@ jobs:
           python setup.py sdist bdist_wheel
 
       - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@v2
+        uses: pypa/gh-action-pypi-publish@main
         with:
           user: __token__
           password: ${{ secrets.pypi_password }}
           # repository_url: https://pypi.org/legacy/
+
 
 
       
