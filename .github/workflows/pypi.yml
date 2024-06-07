@@ -4,20 +4,17 @@ on:
   push:
     branches:
       - main
-  # schedule:
-  #   - cron: '0 4 */1 * *'
-
 jobs:
   build:
     name: Publish Python 🐍 distributions 📦 to PyPI
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Set up Python 3.9
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
@@ -31,11 +28,12 @@ jobs:
           python setup.py sdist bdist_wheel
 
       - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@main
+        uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__
           password: ${{ secrets.pypi_password }}
           # repository_url: https://pypi.org/legacy/
+
 
 
 
