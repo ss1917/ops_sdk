@@ -31,7 +31,7 @@ def get_install_requires():
 
 
 setup(
-    name='codosdk',
+    name='opssdk',
     version=VERSION,
     description="CODO项目的Python SDK",
     packages=['opssdk', 'opssdk.utils', 'websdk2', 'websdk2.apis', 'websdk2.cloud', 'websdk2.utils'],
