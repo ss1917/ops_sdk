@@ -9,7 +9,7 @@ desc   : CODO SDK
 import sys
 from distutils.core import setup
 
-VERSION = '0.1.74'
+VERSION = '1.0.0'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('This program requires at least Python 2.7 or 3.6 to run.')
@@ -31,7 +31,7 @@ def get_install_requires():
 
 
 setup(
-    name='opssdk',
+    name='codosdk',
     version=VERSION,
     description="CODO项目的Python SDK",
     packages=['opssdk', 'opssdk.utils', 'websdk2', 'websdk2.apis', 'websdk2.cloud', 'websdk2.utils'],

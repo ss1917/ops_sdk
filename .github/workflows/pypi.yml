@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  # schedule:
-  #   - cron: '0 4 */1 * *'
-
 jobs:
   build:
     name: Publish Python 🐍 distributions 📦 to PyPI
@@ -34,5 +31,5 @@ jobs:
         uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__
-          password: ${{ secrets.pypi_password }}
+          password: ${{ secrets.PYPI_PASSWORD2 }}
           # repository_url: https://pypi.org/legacy/
