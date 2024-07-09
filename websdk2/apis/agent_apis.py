@@ -14,6 +14,7 @@ class AgentAPIS:
     get_agent_work_url = f'{route_prefix}/v1/manager/agent/get_running_task'
     batch_add_task_url = f'{route_prefix}/v1/agent/task/batch'
     sync_files_url = f'{route_prefix}/v1/manager/agent/share_file/register'
+    cloud_native_url = f'{route_prefix}/v1/manager/agent/task/cloud_native'
 
     get_agent_list = dict(method='GET',
                           url=agent_list_url,
@@ -33,7 +34,7 @@ class AgentAPIS:
                           },
                           field_help={
                           },
-                          description='批量下发任务')
+                          description='批量脚本任务下发')
 
     sync_files_task = dict(method='POST',
                            url=sync_files_url,
@@ -41,4 +42,12 @@ class AgentAPIS:
                            },
                            field_help={
                            },
-                           description='批量分发文件')
+                           description='批量分发文件下发')
+
+    cloud_native_task = dict(method='POST',
+                             url=cloud_native_url,
+                             body={
+                             },
+                             field_help={
+                             },
+                             description='云原生任务下发')
