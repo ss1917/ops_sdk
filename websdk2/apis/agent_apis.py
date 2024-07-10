@@ -50,4 +50,11 @@ class AgentAPIS:
                              },
                              field_help={
                              },
-                             description='云原生任务下发')
+                             description='云原生任务下发/终止/重试')
+
+    get_cloud_native_task = dict(method='GET',
+                                 url=cloud_native_url,
+                                 params={},
+                                 field_help={
+                                 },
+                                 description='云原生任务查询')
