@@ -191,19 +191,27 @@ const.TOKEN_EXP_TIME = "TOKEN_EXP_TIME"
 ### 全局 二次认证
 const.MFA_GLOBAL = 'MFA_GLOBAL'
 
-### 任务状态
-const.STATE_NEW = '0'
-const.STATE_WAIT = '1'
-const.STATE_RUNNING = '2'
-const.STATE_SUCCESS = '3'
-const.STATE_ERROR = '4'
-const.STATE_MANUAL = '5'
-const.STATE_BREAK = '6'
-const.STATE_TIMING = '7'
-const.STATE_UNKNOWN = '8'
-const.STATE_FAIL = '9'
-const.STATE_IGNORE = '10'  # 忽略
-const.STATE_QUEUE = '11'  # 排队中
+# task event 状态
+const.STATE_NEW = '0'  # 新建任务
+const.STATE_WAIT = '1'  # 等待执行
+const.STATE_RUNNING = '2'  # 正在运行
+const.STATE_SUCCESS = '3'  # 成功完成
+const.STATE_ERROR = '4'  # 发生错误
+const.STATE_MANUAL = '5'  # 等待手动
+const.STATE_BREAK = '6'  # 中止状态 //不区分手动和自动
+const.STATE_TIMING = '7'  # 定时状态
+const.STATE_UNKNOWN = '8'  # 未知状态  // debug
+const.STATE_FAIL = '9'  # 失败         // debug
+const.STATE_IGNORE = '10'  # 忽略执行
+const.STATE_QUEUE = '11'  # 排队中   //订单和任务节点公用
+# 订单 状态
+const.ORDER_STATE_WAITING = '31'  # 订单等待中
+const.ORDER_STATE_RUNNING = '32'  # 订单执行中
+const.ORDER_STATE_SUCCESS = '33'  # 订单成功
+const.ORDER_STATE_FAIL = '34'  # 订单失败
+const.ORDER_STATE_WAITING_APPROVAL = '35'  # 订单等待审批
+const.ORDER_STATE_TERMINATED = '39'  # 订单终止
+const.ORDER_STATE_QUEUE = '11'  # 订单排队中
 const.EXEC_TIMEOUT = 1800
 
 ## 节点地址
