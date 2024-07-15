@@ -193,7 +193,6 @@ def get_node_topic(node=False):
         return f'{socket.gethostname()}--mac-{mac}'
 
 
-@staticmethod
 def echo_datetime_now_f():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
