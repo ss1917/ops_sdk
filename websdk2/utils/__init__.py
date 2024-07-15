@@ -7,16 +7,17 @@ Date    : 2018/12/11
 Desc    : 
 """
 
-import os
-import time
 import json
-import uuid
-import socket
+import os
 import smtplib
+import socket
+import time
+import uuid
 from datetime import datetime
-from ..consts import const
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+from ..consts import const
 
 
 class SendMail(object):
@@ -195,6 +196,23 @@ def get_node_topic(node=False):
 
 def echo_datetime_now_f():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+
+
+def echo_execute_time(func):
+    import logging
+    from time import time
+
+    # 定义嵌套函数，用来打印出装饰的函数的执行时间
+    def wrapper(*args, **kwargs):
+        # 定义开始时间和结束时间，将func夹在中间执行，取得其返回值
+        start = time()
+        func_return = func(*args, **kwargs)
+        end = time()
+        logging.warning(f'{func.__name__}() execute time: {end - start}s')
+        return func_return
+
+    # 返回嵌套的函数
+    return wrapper
 
 
 ### 令牌桶限流
