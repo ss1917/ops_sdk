@@ -10,12 +10,13 @@ Desc    :
 import os
 import time
 import json
+import uuid
 import socket
 import smtplib
+from datetime import datetime
 from ..consts import const
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import uuid
 
 
 class SendMail(object):
@@ -92,7 +93,6 @@ class SendMail(object):
             return False
 
 
-
 def mail_login(user, password, mail_server='smtp.exmail.qq.com'):
     ### 模拟登录来验证邮箱
     try:
@@ -165,6 +165,7 @@ def get_contain_dict(src_data: dict, dst_data: dict) -> bool:
         else:
             return True
 
+
 def now_time_stamp() -> int:
     """
     秒时间戳
@@ -190,6 +191,11 @@ def get_node_topic(node=False):
         if os.getenv(const.NODE_ADDRESS): return os.getenv(const.NODE_ADDRESS)
         mac = uuid.UUID(int=uuid.getnode()).hex[-12:]
         return f'{socket.gethostname()}--mac-{mac}'
+
+
+@staticmethod
+def echo_datetime_now_f():
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
 
 
 ### 令牌桶限流
