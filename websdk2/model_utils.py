@@ -99,8 +99,7 @@ class CommonOptView:
 
     @staticmethod
     def del_data(data) -> dict:
-        keys_to_remove = ['_index', '_rowKey']
-        for key in keys_to_remove:
+        for key in ['_index', '_rowKey', 'update_time']:
             data.pop(key, None)
         return data
 
