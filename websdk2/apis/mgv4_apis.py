@@ -93,3 +93,22 @@ class AdminV4APIS:
                                 field_help={
                                 },
                                 description='获取所有角色和角色内内用户信息')
+
+    get_favorites_v4 = dict(method='GET',
+                            url=f'{route_prefix}/v4/favorites/',
+                            params={
+                            },
+                            field_help={
+                            },
+                            description='PAAS-基础功能-公用收藏接口-查看')
+
+    opt_favorites_v4 = dict(method='POST',
+                            url=f'{route_prefix}/v4/favorites/',
+                            body={
+                                "key": "",
+                                "app_code": "overall",
+                                "value": {}
+                            },
+                            field_help={
+                            },
+                            description='PAAS-基础功能-公用收藏接口-添加修改')

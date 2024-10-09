@@ -56,6 +56,9 @@ class BaseHandler(RequestHandler):
         if self.request.method in ("POST", "PUT", "PATCH", "DELETE"):
             try:
                 self.req_data = json.loads(self.request.body.decode("utf-8"))
+                for key in ['_index', '_rowKey', 'update_time']:
+                    self.req_data.pop(key, None)
+                return self.req_data
             except json.JSONDecodeError as err:
                 logging.error(f"Error parsing JSON data in request {self.request.method} at {self.request.path}: {err}")
             except Exception as err:
