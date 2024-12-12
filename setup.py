@@ -2,14 +2,14 @@
 # -*-coding:utf-8-*-
 """"
 author : shenshuo
-date   : 2023年3月8日
+date   : 2024年12月12日
 desc   : CODO SDK
 """
 
 import sys
 from distutils.core import setup
 
-VERSION = '1.0.7'
+VERSION = '1.0.8'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('This program requires at least Python 2.7 or 3.6 to run.')

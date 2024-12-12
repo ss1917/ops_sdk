@@ -10,6 +10,7 @@ Desc   : 处理API请求
 import json
 import requests
 from urllib.parse import urlencode
+from typing import Union, Optional
 import logging
 from .consts import const
 from .configs import configs
@@ -98,32 +99,63 @@ class AcsClient:
     #                                    timeout=self.request_timeout) as response:
     #             return await response.read()
 
-    def with_params_data_url(self, **kwargs):
-        # 重新组装URL
-        url = "{}{}".format(self.endpoint, kwargs['url'])
-        kwargs['url'] = url
+    # def with_params_data_url(self, **kwargs):
+    #     # 重新组装URL
+    #     url = "{}{}".format(self.endpoint, kwargs['url'])
+    #     kwargs['url'] = url
+    #
+    #     if not kwargs['method']: kwargs['method'] = 'GET'
+    #
+    #     # logging.debug(f"with_params_data_url {kwargs}")
+    #     body = kwargs.get('body', {})
+    #     req_json = kwargs.get('json')
+    #
+    #     if kwargs['method'] in ['POST', 'post', 'PATCH', 'patch', 'PUT', 'put']:
+    #         if not (body or req_json):
+    #             raise TypeError('method {},  body can not be empty'.format(kwargs['method']))
+    #         else:
+    #             if not isinstance(body, dict):
+    #                 json.loads(body)
+    #
+    #     if body and isinstance(body, dict): kwargs['body'] = json.dumps(body)
+    #
+    #     params = kwargs.get('params')
+    #     if params: kwargs['url'] = "{}?{}".format(url, urlencode(params))
+    #
+    #     if not self.headers: self.headers = kwargs.get('headers', {})
+    #
+    #     if kwargs['method'] not in ['GET', 'get']: self.headers['Content-Type'] = 'application/json'
+    #
+    #     return kwargs
 
-        if not kwargs['method']: kwargs['method'] = 'GET'
+    def with_params_data_url(self, **kwargs) -> dict:
+        endpoint = self.endpoint.strip("'").strip('"')
+        kwargs['url'] = f"{endpoint}{kwargs.get('url', '')}"
+        kwargs['method'] = kwargs.get('method', 'GET').upper()
 
-        # logging.debug(f"with_params_data_url {kwargs}")
-        body = kwargs.get('body', {})
-        req_json = kwargs.get('json')
+        body: Union[dict, str] = kwargs.get('body', {})
+        req_json: Optional[dict] = kwargs.get('json')
 
-        if kwargs['method'] in ['POST', 'post', 'PATCH', 'patch', 'PUT', 'put']:
+        if kwargs['method'] in {'POST', 'PATCH', 'PUT'}:
             if not (body or req_json):
-                raise TypeError('method {},  body can not be empty'.format(kwargs['method']))
-            else:
-                if not isinstance(body, dict):
-                    json.loads(body)
+                raise TypeError(f"Method {kwargs['method']} requires a non-empty body or JSON payload.")
+            if body and not isinstance(body, dict):
+                try:
+                    body = json.loads(body)
+                except json.JSONDecodeError as e:
+                    raise TypeError(f"Invalid JSON body: {e}")
 
-        if body and isinstance(body, dict): kwargs['body'] = json.dumps(body)
+        if body and isinstance(body, dict):
+            kwargs['body'] = json.dumps(body)
 
-        params = kwargs.get('params')
-        if params: kwargs['url'] = "{}?{}".format(url, urlencode(params))
+        params: Optional[dict] = kwargs.get('params')
+        if params:
+            kwargs['url'] = f"{kwargs['url']}?{urlencode(params)}"
 
-        if not self.headers: self.headers = kwargs.get('headers', {})
+        kwargs['headers'] = kwargs.get('headers', self.headers or {})
 
-        if kwargs['method'] not in ['GET', 'get']: self.headers['Content-Type'] = 'application/json'
+        if kwargs['method'] != 'GET':
+            kwargs['headers'].setdefault('Content-Type', 'application/json')
 
         return kwargs
 
