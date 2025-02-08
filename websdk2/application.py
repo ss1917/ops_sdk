@@ -6,8 +6,8 @@ date   : 2018年1月12日13:43:27
 role   : 定制 Application
 """
 
-import os
 import logging
+from abc import ABC
 from shortuuid import uuid
 from tornado import httpserver, ioloop
 from tornado import options as tnd_options
@@ -30,10 +30,14 @@ class Application(tornadoApp):
 
     def __init__(self, handlers=None, default_host="", transforms=None, **settings):
         tnd_options.parse_command_line()
-        if configs.can_import: configs.import_dict(**settings)
-        # ins_log.read_log('info', '%s' % options.progid)
+        handlers = handlers or []
+        if configs.can_import:
+            configs.import_dict(**settings)
+
         handlers.extend([(r"/v1/probe/meta/urls/", MetaProbe), ])
-        self.urls_meta_handle(handlers)
+
+        self._generate_url_metadata(handlers)
+
         max_buffer_size = configs.get('max_buffer_size')
         max_body_size = configs.get('max_body_size')
         super(Application, self).__init__(handlers, default_host, transforms, **configs)
@@ -52,25 +56,37 @@ class Application(tornadoApp):
             self.io_loop.start()
         except KeyboardInterrupt:
             self.io_loop.stop()
-        except:
-            import traceback
-            logging.error('%(tra)s' % dict(tra=traceback.format_exc()))
+            logging.info("Server shut down gracefully.")
+        except Exception as e:
+            logging.error(f"Unexpected error: {e}", exc_info=True)
 
-    def urls_meta_handle(self, urls):
-        # 数据写入内存，启动的时候上报至权限管理
-        urls_meta_list.extend([{"url": u[0], "name": u[2].get('handle_name')[0:30] if u[2].get('handle_name') else "",
-                                "method": u[2].get('method') if u[2].get('method') and len(
-                                    u[2].get('method')) < 100 else [],
-                                "status": u[2].get('handle_status')[0:2] if u[2].get('handle_status') else "y"} if len(
-            u) > 2 else {"url": u[0], "name": "暂无", "status": "y"} for u in urls])
+    @staticmethod
+    def _generate_url_metadata(urls):
+        """Generate metadata for registered URLs."""
+        for url in urls:
+            meta = {
+                "url": url[0],
+                "name": url[2].get("handle_name", "暂无")[:30] if len(url) > 2 else "暂无",
+                "method": url[2].get("method", []) if len(url) > 2 else [],
+                "status": url[2].get("handle_status", "y")[:2] if len(url) > 2 else "y",
+            }
+            urls_meta_list.append(meta)
 
 
-class MetaProbe(RequestHandler):
+class MetaProbe(ABC, RequestHandler):
     def head(self, *args, **kwargs):
-        self.write(dict(code=0, msg="Get success", count=len(urls_meta_list), data=urls_meta_list))
+        self._write_response()
 
     def get(self, *args, **kwargs):
-        self.write(dict(code=0, msg="Get success", count=len(urls_meta_list), data=urls_meta_list))
+        self._write_response()
+
+    def _write_response(self):
+        self.write({
+            "code": 0,
+            "msg": "Get success",
+            "count": len(urls_meta_list),
+            "data": urls_meta_list,
+        })
 
 
 if __name__ == '__main__':
