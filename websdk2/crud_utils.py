@@ -41,7 +41,7 @@ class ModelCRUDView:
                 if not _info:
                     return dict(code=1, msg='数据未找到', data=None)
                 return dict(code=0, msg='获取成功', data={
-                    data: _info.to_dict()
+                    'item': _info.to_dict()
                 })
         except Exception as e:
             logging.error(f"Database query failed: {e}")
