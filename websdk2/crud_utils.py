@@ -6,12 +6,21 @@ Date   : 2025年02月08日
 Desc   : 存储类
 """
 
+import time
 import logging
 from sqlalchemy import true
 from sqlalchemy.exc import IntegrityError
 from .db_context import DBContextV2 as DBContext
 from .utils.pydantic_utils import sqlalchemy_to_pydantic, ValidationError, PydanticDelList
 from .sqlalchemy_pagination import paginate
+
+
+def get_millisecond_timestamp() -> int:
+    """
+    获取当前时间的毫秒级时间戳。
+    :return: 毫秒级时间戳（int）
+    """
+    return int(time.time() * 1000)
 
 
 class ModelCRUDView:
@@ -33,19 +42,22 @@ class ModelCRUDView:
         self.prepare()
         data_id = data.get('id')
         if not data_id:
-            return dict(code=1, msg="缺少必要的 'id' 参数", data=None)
+            return dict(code=1, msg="缺少必要的 'id' 参数", data=None, reason="", timestamp=get_millisecond_timestamp())
 
         try:
             with DBContext('r') as session:
                 _info = session.query(self.model).filter(self.model.id == data_id).first()
                 if not _info:
-                    return dict(code=1, msg='数据未找到', data=None)
-                return dict(code=0, msg='获取成功', data={
-                    'item': _info.to_dict()
-                })
+                    return dict(code=1, msg='数据未找到', data=None, reason="", timestamp=get_millisecond_timestamp())
+                return dict(code=0,
+                            msg='获取成功',
+                            reason="",
+                            timestamp=get_millisecond_timestamp(),
+                            data={'item': _info.to_dict()}
+                            )
         except Exception as e:
             logging.error(f"Database query failed: {e}")
-            return dict(code=2, msg='查询失败', data=None)
+            return dict(code=2, msg='查询失败', data=None, timestamp=get_millisecond_timestamp())
 
     def handle_list(self, params: dict, get_by_val_func=None) -> dict:
         self.prepare()
@@ -74,13 +86,18 @@ class ModelCRUDView:
         except Exception as e:
             raise ValueError(f"Error while executing `get_by_val_func`: {e}")
 
-        with DBContext('r') as session:
-            query = session.query(self.model).filter(filter_condition).filter_by(**filter_map)
-            page = paginate(query, **params)
+        try:
+            with DBContext('r') as session:
+                query = session.query(self.model).filter(filter_condition).filter_by(**filter_map)
+                page = paginate(query, **params)
+        except Exception as e:
+            return dict(code=2, msg='查询失败', data=None, reason=str(e), timestamp=get_millisecond_timestamp())
 
         return dict(
             code=0,
             msg='获取成功',
+            reason="",
+            timestamp=get_millisecond_timestamp(),
             data={
                 'items': page.items,
                 'current_page': page.page,  # 当前页
@@ -95,18 +112,18 @@ class ModelCRUDView:
         try:
             self.pydantic_model(**data)
         except ValidationError as e:
-            return dict(code=-1, msg=str(e))
+            return dict(code=-1, msg='数据格式出错', reason=str(e), timestamp=get_millisecond_timestamp())
 
         try:
             with DBContext('w', None, True) as db:
                 db.add(self.model(**data))
         except IntegrityError as e:
-            return dict(code=-2, msg='不要重复添加')
+            return dict(code=-2, msg='不要重复添加', reason=str(e), timestamp=get_millisecond_timestamp())
 
         except Exception as e:
-            return dict(code=-3, msg=f'{e}')
+            return dict(code=-3, msg='创建失败', reason=str(e), timestamp=get_millisecond_timestamp())
 
-        return dict(code=0, msg="创建成功")
+        return dict(code=0, msg="创建成功", reason="", timestamp=get_millisecond_timestamp())
 
     def handle_update(self, data: dict) -> dict:
         self.prepare()
@@ -114,19 +131,19 @@ class ModelCRUDView:
         try:
             valid_data = self.pydantic_model_base(**data)
         except ValidationError as e:
-            return dict(code=-1, msg=str(e))
+            return dict(code=-1, msg="数据格式校验失败", reason=str(e), timestamp=get_millisecond_timestamp())
 
         try:
             with DBContext('w', None, True) as db:
                 db.query(self.model).filter(self.model.id == valid_data.id).update(data)
 
         except IntegrityError as e:
-            return dict(code=-2, msg=f'修改失败，已存在')
+            return dict(code=-2, msg=f'修改失败，已存在', reason=str(e), timestamp=get_millisecond_timestamp())
 
-        except Exception as err:
-            return dict(code=-3, msg=f'修改失败, {err}')
+        except Exception as e:
+            return dict(code=-3, msg=f'修改失败, {e}', reason=str(e), timestamp=get_millisecond_timestamp())
 
-        return dict(code=0, msg="修改成功")
+        return dict(code=0, msg="修改成功", reason='', timestamp=get_millisecond_timestamp())
 
     def handle_update_no_validation(self, data: dict) -> dict:
         """不进行校验的更新方法"""
@@ -134,15 +151,15 @@ class ModelCRUDView:
         data_id = data.get('id')
         with DBContext('w', None, True) as db:
             db.query(self.model).filter(self.model.id == data_id).update(data)
-        return dict(code=0, msg='更新成功')
+        return dict(code=0, msg='更新成功', reason='', timestamp=get_millisecond_timestamp())
 
     def handle_delete(self, data: dict) -> dict:
         self.prepare()
         try:
             valid_data = PydanticDelList(**data)
         except ValidationError as e:
-            return dict(code=-1, msg=str(e))
+            return dict(code=-1, msg="数据格式校验失败", reason=str(e), timestamp=get_millisecond_timestamp())
 
         with DBContext('w', None, True) as session:
             session.query(self.model).filter(self.model.id.in_(valid_data.id_list)).delete(synchronize_session=False)
-        return dict(code=0, msg=f"删除成功")
+        return dict(code=0, msg=f"删除成功", reason='', timestamp=get_millisecond_timestamp())
