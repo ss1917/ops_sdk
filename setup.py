@@ -7,9 +7,9 @@ desc   : CODO SDK
 """
 
 import sys
-from distutils.core import setup
+from setuptools import setup, find_packages
 
-VERSION = '1.0.10'
+VERSION = '1.0.11'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('This program requires at least Python 2.7 or 3.6 to run.')
@@ -34,14 +34,16 @@ setup(
     name='codosdk',
     version=VERSION,
     description="CODO项目的Python SDK",
-    packages=['opssdk', 'opssdk.utils', 'websdk2', 'websdk2.apis', 'websdk2.cloud', 'websdk2.utils'],
+    # packages=['opssdk', 'opssdk.utils', 'websdk2', 'websdk2.apis', 'websdk2.cloud', 'websdk2.utils'],
+    packages=find_packages(),
     url='https://github.com/ss1917/codo_sdk/',
     license='GPLv3',
-    keywords="ops,opencodo,devops",
+    keywords="ops, codo, devops",
     install_requires=get_install_requires(),
     author='shenshuo',
     author_email='191715030@qq.com',
-    long_description='SDK of the operation and maintenance script logs operate',
+    long_description=open('README.md').read(),  # 自动读取README文件
+    long_description_content_type='text/markdown',  # 确保Markdown格式
     include_package_data=True,
     data_files=get_data_files(),
     classifiers=[
@@ -55,5 +57,6 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.9'
     ],
-    platforms='any'
+    platforms='any',
+    python_requires='>=2.7, >=3.6',  # 精确控制支持的Python版本
 )

@@ -11,22 +11,19 @@ import re
 import time
 import redis
 import subprocess
-from threading import Lock
 from concurrent.futures import ThreadPoolExecutor
 from .consts import const
 
 
 def singleton(class_):
     instances = {}
-    lock = Lock()  # 线程锁
 
-    def get_instance(*args, **kwargs):
-        with lock:  # 确保线程安全
-            if class_ not in instances:
-                instances[class_] = class_(*args, **kwargs)
+    def getinstance(*args, **kwargs):
+        if class_ not in instances:
+            instances[class_] = class_(*args, **kwargs)
         return instances[class_]
 
-    return get_instance
+    return getinstance
 
 
 def bytes_to_unicode(input_bytes):

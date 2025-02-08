@@ -5,7 +5,7 @@ Version : 0.0.8
 Contact : 191715030@qq.com
 Author  : shenshuo
 Date    : 2021/1/26 20:28
-Desc    :  https://github.com/tiangolo/pydantic-sqlalchemy
+Desc    : https://github.com/tiangolo/pydantic-sqlalchemy
 """
 
 ####
