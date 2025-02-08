@@ -57,7 +57,7 @@ class ModelCRUDView:
                             )
         except Exception as e:
             logging.error(f"Database query failed: {e}")
-            return dict(code=2, msg='查询失败', data=None, timestamp=get_millisecond_timestamp())
+            return dict(code=2, msg='查询失败', data=None, reason=str(e), timestamp=get_millisecond_timestamp())
 
     def handle_list(self, params: dict, get_by_val_func=None) -> dict:
         self.prepare()

@@ -218,3 +218,8 @@ const.EXEC_TIMEOUT = 1800
 const.NODE_ADDRESS = 'NODE_ADDRESS'
 const.EXEC_NODE_MAP_KEY = 'EXEC_NODE_MAP_KEY'
 const.AGENT_USED_KEY = "agent_is_used_map_mark_key"
+
+# otel
+const.jaeger_exporter_host = "jaeger_exporter_host"
+const.jaeger_exporter_port = "jaeger_exporter_port"
+const.otel_enabled = "otel_enabled"
