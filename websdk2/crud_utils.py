@@ -141,6 +141,8 @@ class ModelCRUDView:
         except ValidationError as e:
             return dict(code=-1, msg='数据格式出错', reason=str(e), data=None, timestamp=get_millisecond_timestamp())
 
+        data.pop("id", None)
+
         try:
             with DBContext('w', None, True) as db:
                 __record = self.model(**data)
