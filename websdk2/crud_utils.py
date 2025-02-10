@@ -5,11 +5,12 @@ Author : shenshuo
 Date   : 2025年02月08日
 Desc   : 存储类
 """
-
+import json
 import time
 import logging
 from sqlalchemy import true
 from sqlalchemy.exc import IntegrityError
+from typing import List, Union, Optional
 from .db_context import DBContextV2 as DBContext
 from .utils.pydantic_utils import sqlalchemy_to_pydantic, ValidationError, PydanticDelList
 from .sqlalchemy_pagination import paginate
@@ -31,6 +32,28 @@ class ModelCRUDView:
 
     def prepare(self):
         pass
+
+    @staticmethod
+    def parse_id_list(id_list: Union[str, List[int]]) -> Optional[List[int]]:
+        """
+        解析和验证 id_list 参数。
+        """
+        if isinstance(id_list, str):
+            try:
+                id_list = json.loads(id_list)
+            except json.JSONDecodeError as e:
+                logging.error(f"Failed to parse id_list: {e}, input: {id_list}")
+                return None
+        if isinstance(id_list, list):
+            try:
+                # 尝试将所有元素转换为整数
+                id_list = [int(i) for i in id_list]
+                return id_list
+            except Exception as e:
+                logging.error(f"Invalid id_list element: {e}, input: {id_list}")
+                return None
+        logging.error(f"Invalid id_list format: {id_list}")
+        return None
 
     @staticmethod
     def del_data(data) -> dict:
@@ -90,8 +113,10 @@ class ModelCRUDView:
         try:
             with DBContext('r') as session:
                 query = session.query(self.model).filter(filter_condition).filter_by(**filter_map)
-                if id_list and isinstance(id_list, list):
+                id_list = self.parse_id_list(id_list)
+                if id_list:
                     query = query.filter(self.model.id.in_(id_list))
+
                 page = paginate(query, **params)
         except Exception as e:
             return dict(code=2, msg='查询失败', data=None, reason=str(e), timestamp=get_millisecond_timestamp())
@@ -103,7 +128,6 @@ class ModelCRUDView:
             timestamp=get_millisecond_timestamp(),
             data={
                 'items': page.items,
-                'current_page': page.page,  # 当前页
                 'total_pages': page.pages,  # 总页数
                 'count': page.total  # 总数
             }
