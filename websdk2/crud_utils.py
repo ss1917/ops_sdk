@@ -63,6 +63,7 @@ class ModelCRUDView:
         self.prepare()
 
         value = params.get('searchValue', params.get('searchVal'))
+        id_list = params.get('id_list', [])
         filter_map = params.pop('filter_map', {})
         params.setdefault('page_size', 300)  # 统一处理默认值
 
@@ -89,6 +90,8 @@ class ModelCRUDView:
         try:
             with DBContext('r') as session:
                 query = session.query(self.model).filter(filter_condition).filter_by(**filter_map)
+                if id_list and isinstance(id_list, list):
+                    query = query.filter(self.model.id.in_(id_list))
                 page = paginate(query, **params)
         except Exception as e:
             return dict(code=2, msg='查询失败', data=None, reason=str(e), timestamp=get_millisecond_timestamp())
