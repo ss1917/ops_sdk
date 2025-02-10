@@ -112,18 +112,21 @@ class ModelCRUDView:
         try:
             self.pydantic_model(**data)
         except ValidationError as e:
-            return dict(code=-1, msg='数据格式出错', reason=str(e), timestamp=get_millisecond_timestamp())
+            return dict(code=-1, msg='数据格式出错', reason=str(e), data=None, timestamp=get_millisecond_timestamp())
 
         try:
             with DBContext('w', None, True) as db:
-                db.add(self.model(**data))
+                __record = self.model(**data)
+                db.add(__record)
+                db.flush()
+                new_id = __record.id
+                return dict(code=0, msg="创建成功", data={"new_id": new_id}, reason="",
+                            timestamp=get_millisecond_timestamp())
         except IntegrityError as e:
-            return dict(code=-2, msg='不要重复添加', reason=str(e), timestamp=get_millisecond_timestamp())
+            return dict(code=-2, msg='不要重复添加', data=None, reason=str(e), timestamp=get_millisecond_timestamp())
 
         except Exception as e:
-            return dict(code=-3, msg='创建失败', reason=str(e), timestamp=get_millisecond_timestamp())
-
-        return dict(code=0, msg="创建成功", reason="", timestamp=get_millisecond_timestamp())
+            return dict(code=-3, msg='创建失败', data=None, reason=str(e), timestamp=get_millisecond_timestamp())
 
     def handle_update(self, data: dict) -> dict:
         self.prepare()
