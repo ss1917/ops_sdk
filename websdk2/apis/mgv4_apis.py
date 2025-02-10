@@ -92,7 +92,15 @@ class AdminV4APIS:
                                 },
                                 field_help={
                                 },
-                                description='获取所有角色和角色内内用户信息')
+                                description='获取所有角色和角色内内用户信息-待废弃')
+
+    get_all_roles_users = dict(method='GET',
+                               url=f'{route_prefix}/v4/all_roles_users/',
+                               params={
+                               },
+                               field_help={
+                               },
+                               description='获取所有角色和角色内内用户信息')
 
     get_favorites_v4 = dict(method='GET',
                             url=f'{route_prefix}/v4/favorites/',
