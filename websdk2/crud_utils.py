@@ -14,6 +14,7 @@ from typing import List, Union, Optional
 from .db_context import DBContextV2 as DBContext
 from .utils.pydantic_utils import sqlalchemy_to_pydantic, ValidationError, PydanticDelList
 from .sqlalchemy_pagination import paginate
+from .model_utils import model_to_dict
 
 
 def get_millisecond_timestamp() -> int:
@@ -76,7 +77,7 @@ class ModelCRUDView:
                             msg='获取成功',
                             reason="",
                             timestamp=get_millisecond_timestamp(),
-                            data={'item': _info.to_dict()}
+                            data={'item': model_to_dict(_info)}
                             )
         except Exception as e:
             logging.error(f"Database query failed: {e}")
