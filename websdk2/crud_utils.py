@@ -105,8 +105,8 @@ class ModelCRUDView:
         try:
             # 调用 get_by_val_func 生成过滤条件
             filter_condition = get_by_val_func(value)
-            if not isinstance(filter_condition, (bool, type(true()))):
-                raise ValueError("The `get_by_val_func` must return a SQLAlchemy filter condition or a boolean.")
+            # if not isinstance(filter_condition, (bool, type(true()))):
+            #     raise ValueError("The `get_by_val_func` must return a SQLAlchemy filter condition or a boolean.")
 
         except Exception as e:
             raise ValueError(f"Error while executing `get_by_val_func`: {e}")
