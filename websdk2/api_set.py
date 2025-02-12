@@ -9,11 +9,11 @@ Desc    : API集合
 """
 
 from .tools import singleton
-from .apis import AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentAPIS
+from .apis import AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentAPIS, NoticeAPIS
 
 
 @singleton
-class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentAPIS):
+class ConstAPIS(AdminAPIS, TaskAPIS, KerriganAPIS, AdminV4APIS, CMDBAPIS, AgentAPIS, NoticeAPIS):
     def __init__(self):
         pass
 
