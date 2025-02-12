@@ -9,7 +9,7 @@ desc   : CODO SDK
 import sys
 from setuptools import setup, find_packages
 
-VERSION = '1.0.21'
+VERSION = '1.0.23'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('This program requires at least Python 2.7 or 3.6 to run.')
@@ -42,8 +42,9 @@ setup(
     install_requires=get_install_requires(),
     author='shenshuo',
     author_email='191715030@qq.com',
-    long_description=open('README.md').read(),  # 自动读取README文件
-    long_description_content_type='text/markdown',  # 确保Markdown格式
+    long_description='SDK of the operation and maintenance script logs operate',
+    # long_description=open('README.md').read(),  # 自动读取README文件
+    # long_description_content_type='text/markdown',  # 确保Markdown格式
     include_package_data=True,
     data_files=get_data_files(),
     classifiers=[
