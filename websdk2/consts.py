@@ -109,6 +109,11 @@ const.CONSUL_PORT_KEY = 'cs_port'
 const.CONSUL_TOKEN_KEY = 'cs_token'
 const.CONSUL_SCHEME_KEY = 'cs_scheme'
 
+# kafka
+const.KAFKA_BOOTSTRAP_SERVERS = 'kafka_bootstrap_servers'
+const.KAFKA_CLIENT_ID = 'kafka_client_id'
+const.KAFKA_TOPIC = 'kafka_topic'
+
 const.APP_NAME = 'app_name'
 const.LOG_PATH = 'log_path'
 const.LOG_BACKUP_COUNT = 'log_backup_count'

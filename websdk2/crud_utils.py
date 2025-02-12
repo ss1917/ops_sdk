@@ -58,7 +58,7 @@ class ModelCRUDView:
 
     @staticmethod
     def del_data(data) -> dict:
-        for key in ['_index', '_rowKey', 'update_time']:
+        for key in ['_index', '_rowKey', 'update_time', 'updated_at']:
             data.pop(key, None)
         return data
 
