@@ -8,101 +8,181 @@ Desc    :
 """
 
 import json
+import logging
 import os
 import smtplib
 import socket
 import time
 import uuid
 from datetime import datetime
-from email.mime.multipart import MIMEMultipart
+from typing import List, Union
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 from ..consts import const
 
 
-class SendMail(object):
-    def __init__(self, mail_host, mail_port, mail_user, mail_password, mail_ssl=False, mail_tls=False):
+class SendMail:
+    def __init__(self, mail_host: str, mail_port: int, mail_user: str, mail_password: str, mail_ssl: bool = False,
+                 mail_tls: bool = False):
         """
+        初始化邮件发送客户端
+
         :param mail_host:     SMTP主机
         :param mail_port:     SMTP端口
         :param mail_user:     SMTP账号
         :param mail_password: SMTP密码
-        :param mail_ssl:      SSL=True, 如果SMTP端口是465，通常需要启用SSL，  如果SMTP端口是587，通常需要启用TLS
+        :param mail_ssl:      是否启用SSL加密，如果SMTP端口是465，通常需要启用SSL
+        :param mail_tls:      是否启用TLS加密，如果SMTP端口是587，通常需要启用TLS
         """
         self.mail_host = mail_host
         self.mail_port = mail_port
-        self.__mail_user = mail_user
-        self.__mail_password = mail_password
+        self.mail_user = mail_user
+        self.__mail_password = mail_password  # 使用单下划线，表示这是一个受保护的属性
         self.mail_ssl = mail_ssl
         self.mail_tls = mail_tls
 
-    def send_mail(self, to_list, subject, content, subtype='plain', att=None):
+    def send_mail(self, to_list: Union[str, List[str]], subject: str, content: str, subtype: str = 'plain',
+                  att: Union[str, None] = None):
         """
-        :param to_list:  收件人，多收件人半角逗号分割， 必填
-        :param subject:  标题， 必填
-        :param content:  内容， 必填
-        :param subtype:  格式，默认：plain, 可选html
-        :param att:      附件，支持单附件，选填
+        发送邮件
+
+        :param to_list:  收件人列表，可以是单个邮箱地址字符串，也可以是多个邮箱地址的列表，必填
+        :param subject:  邮件标题，必填
+        :param content:  邮件内容，必填
+        :param subtype:  邮件内容格式，默认为plain，可选html
+        :param att:      附件路径，支持单个附件，选填
         """
+
+        if isinstance(to_list, list):
+            to_list = ','.join(to_list)  # 将列表转换为逗号分隔的字符串
+
         msg = MIMEMultipart()
-        msg['Subject'] = subject  ## 标题
-        msg['From'] = self.__mail_user  ## 发件人
-        msg['To'] = to_list  # 收件人，必须是一个字符串
-        # 邮件正文内容
+        msg['Subject'] = subject
+        msg['From'] = self.mail_user
+        msg['To'] = to_list
+
         msg.attach(MIMEText(content, subtype, 'utf-8'))
+
         if att:
             if not os.path.isfile(att):
-                raise FileNotFoundError('{0} file does not exist'.format(att))
+                raise FileNotFoundError(f'{att} 文件不存在')
+            try:
+                with open(att, 'rb') as f:
+                    file_data = f.read()
 
-            dirname, filename = os.path.split(att)
-            # 构造附件1，传送当前目录下的 test.txt 文件
-            att1 = MIMEText(open(att, 'rb').read(), 'base64', 'utf-8')
-            att1["Content-Type"] = 'application/octet-stream'
-            # 这里的filename可以任意写，写什么名字，邮件中显示什么名字
-            att1["Content-Disposition"] = 'attachment; filename="{0}"'.format(filename)
-            msg.attach(att1)
+                filename = os.path.basename(att)
+                attachment = MIMEText(file_data.decode('utf-8'), 'base64', 'utf-8')
+                attachment['Content-Type'] = 'application/octet-stream'
+                attachment['Content-Disposition'] = f'attachment; filename="{filename}"'
+                msg.attach(attachment)
+            except Exception as err:
+                logging.error(f"发送附件出错 {err}")
 
         try:
-            if self.mail_ssl:
-                '''SSL加密方式，通信过程加密，邮件数据安全, 使用端口465'''
-                # print('Use SSL SendMail')
-                server = smtplib.SMTP_SSL(host=self.mail_host)
-                server.connect(self.mail_host, self.mail_port)  # 连接服务器
-                server.login(self.__mail_user, self.__mail_password)  # 登录操作
-                server.sendmail(self.__mail_user, to_list.split(','), msg.as_string())
-                server.close()
-            elif self.mail_tls:
-                # print('Use TLS SendMail')
-                '''使用TLS模式'''
-                server = smtplib.SMTP()
-                server.connect(self.mail_host, self.mail_port)  # 连接服务器
-                server.starttls()
-                server.login(self.__mail_user, self.__mail_password)  # 登录操作
-                server.sendmail(self.__mail_user, to_list.split(','), msg.as_string())
-                server.close()
-                return True
-            else:
-                '''使用普通模式'''
-                server = smtplib.SMTP()
-                server.connect(self.mail_host, self.mail_port)  # 连接服务器
-                server.login(self.__mail_user, self.__mail_password)  # 登录操作
-                server.sendmail(self.__mail_user, to_list.split(','), msg.as_string())
-                server.close()
-                return True
+            with self._get_server() as server:
+                server.sendmail(self.mail_user, to_list.split(','), msg.as_string())
+            return True
         except Exception as e:
-            print(str(e))
+            logging.error(f'邮件发送失败: {e}')
             return False
 
+    def _get_server(self):
+        if self.mail_ssl:
+            server = smtplib.SMTP_SSL(self.mail_host, self.mail_port)
+        elif self.mail_tls:
+            server = smtplib.SMTP(self.mail_host, self.mail_port)
+            server.starttls()
+        else:
+            server = smtplib.SMTP(self.mail_host, self.mail_port)
+
+        server.login(self.mail_user, self.__mail_password)
+        return server
+
+
+# class SendMail(object):
+#     def __init__(self, mail_host, mail_port, mail_user, mail_password, mail_ssl=False, mail_tls=False):
+#         """
+#         :param mail_host:     SMTP主机
+#         :param mail_port:     SMTP端口
+#         :param mail_user:     SMTP账号
+#         :param mail_password: SMTP密码
+#         :param mail_ssl:      SSL=True, 如果SMTP端口是465，通常需要启用SSL，  如果SMTP端口是587，通常需要启用TLS
+#         """
+#         self.mail_host = mail_host
+#         self.mail_port = mail_port
+#         self.__mail_user = mail_user
+#         self.__mail_password = mail_password
+#         self.mail_ssl = mail_ssl
+#         self.mail_tls = mail_tls
+#
+#     def send_mail(self, to_list, subject, content, subtype='plain', att=None):
+#         """
+#         :param to_list:  收件人，多收件人半角逗号分割， 必填
+#         :param subject:  标题， 必填
+#         :param content:  内容， 必填
+#         :param subtype:  格式，默认：plain, 可选html
+#         :param att:      附件，支持单附件，选填
+#         """
+#         msg = MIMEMultipart()
+#         msg['Subject'] = subject  ## 标题
+#         msg['From'] = self.__mail_user  ## 发件人
+#         msg['To'] = to_list  # 收件人，必须是一个字符串
+#         # 邮件正文内容
+#         msg.attach(MIMEText(content, subtype, 'utf-8'))
+#         if att:
+#             if not os.path.isfile(att):
+#                 raise FileNotFoundError('{0} file does not exist'.format(att))
+#
+#             dirname, filename = os.path.split(att)
+#             # 构造附件1，传送当前目录下的 test.txt 文件
+#             att1 = MIMEText(open(att, 'rb').read(), 'base64', 'utf-8')
+#             att1["Content-Type"] = 'application/octet-stream'
+#             # 这里的filename可以任意写，写什么名字，邮件中显示什么名字
+#             att1["Content-Disposition"] = 'attachment; filename="{0}"'.format(filename)
+#             msg.attach(att1)
+#
+#         try:
+#             if self.mail_ssl:
+#                 '''SSL加密方式，通信过程加密，邮件数据安全, 使用端口465'''
+#                 # print('Use SSL SendMail')
+#                 server = smtplib.SMTP_SSL(host=self.mail_host)
+#                 server.connect(self.mail_host, self.mail_port)  # 连接服务器
+#                 server.login(self.__mail_user, self.__mail_password)  # 登录操作
+#                 server.sendmail(self.__mail_user, to_list.split(','), msg.as_string())
+#                 server.close()
+#             elif self.mail_tls:
+#                 # print('Use TLS SendMail')
+#                 '''使用TLS模式'''
+#                 server = smtplib.SMTP(host=self.mail_host)
+#                 server.connect(self.mail_host, self.mail_port)  # 连接服务器
+#                 server.starttls()
+#                 server.login(self.__mail_user, self.__mail_password)  # 登录操作
+#                 server.sendmail(self.__mail_user, to_list.split(','), msg.as_string())
+#                 server.close()
+#                 return True
+#             else:
+#                 '''使用普通模式'''
+#                 server = smtplib.SMTP()
+#                 server.connect(self.mail_host, self.mail_port)  # 连接服务器
+#                 server.login(self.__mail_user, self.__mail_password)  # 登录操作
+#                 server.sendmail(self.__mail_user, to_list.split(','), msg.as_string())
+#                 server.close()
+#                 return True
+#         except Exception as e:
+#             print(str(e))
+#             return False
+#
 
 def mail_login(user, password, mail_server='smtp.exmail.qq.com'):
-    ### 模拟登录来验证邮箱
+    # 模拟登录来验证邮箱
     try:
         server = smtplib.SMTP()
         server.connect(mail_server)
         server.login(user, password)
         return True
     except Exception as e:
-        print(user, e)
+        logging.error(f"{user}邮箱认证出错：{e}")
         return False
 
 
