@@ -45,3 +45,9 @@ class CMDBAPIS:
                                  params={
                                  },
                                  description='根据业务获取资源信息')
+
+    get_tree_asset_server_old = dict(method='GET',
+                                     url=f'{cmdb_prefix}/api/v2/cmdb/tree/asset/',
+                                     params={
+                                     },
+                                     description='根据业务获取资源信息，待废弃')
