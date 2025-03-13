@@ -94,6 +94,15 @@ const.MQ_PWD = 'MQ_PWD'
 const.DEFAULT_MQ_KEY = 'default'
 const.AGENT_MQ_KEY = 'agent'
 
+# CRITICAL = 50
+# FATAL = CRITICAL
+# ERROR = 40
+# WARNING = 30
+# WARN = WARNING
+# INFO = 20
+# DEBUG = 10
+# NOTSET = 0
+const.LOG_LEVEL = "log_level"
 # JMS
 const.JMS_CONFIG_ITEM = 'jmss'
 const.DEFAULT_JMS_KEY = 'default'

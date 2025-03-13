@@ -15,6 +15,7 @@ from tornado.options import options, define
 from tornado.web import Application as tornadoApp
 from tornado.web import RequestHandler
 from .configs import configs
+from .consts import const
 from .logger import init_logging
 
 # options.log_file_prefix = "/tmp/codo.log"
@@ -41,6 +42,9 @@ class Application(tornadoApp):
         max_buffer_size = configs.get('max_buffer_size')
         max_body_size = configs.get('max_body_size')
         super(Application, self).__init__(handlers, default_host, transforms, **configs)
+        if configs.get(const.LOG_LEVEL) in [10, 20, 30, 40]:
+            logging.getLogger().setLevel(configs.get(const.LOG_LEVEL))
+
         http_server = httpserver.HTTPServer(self, max_buffer_size=max_buffer_size, max_body_size=max_body_size)
         http_server.listen(options.port, address=options.addr)
         self.io_loop = ioloop.IOLoop.instance()
