@@ -42,8 +42,14 @@ class Application(tornadoApp):
         max_buffer_size = configs.get('max_buffer_size')
         max_body_size = configs.get('max_body_size')
         super(Application, self).__init__(handlers, default_host, transforms, **configs)
+
         if configs.get(const.LOG_LEVEL) in [10, 20, 30, 40]:
-            logging.getLogger().setLevel(configs.get(const.LOG_LEVEL))
+            log_level = configs.get(const.LOG_LEVEL)
+            current_level = logging.getLogger().getEffectiveLevel()
+
+            if log_level != current_level:  # 仅在与当前级别不同的时候更新
+                logging.getLogger().setLevel(log_level)
+                logging.info(f'[APP Logging] Log level configured to: {logging.getLevelName(log_level)} ({log_level})')
 
         http_server = httpserver.HTTPServer(self, max_buffer_size=max_buffer_size, max_body_size=max_body_size)
         http_server.listen(options.port, address=options.addr)
