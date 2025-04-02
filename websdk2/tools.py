@@ -15,7 +15,7 @@ from shortuuid import uuid
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from abc import ABC, abstractmethod
-from websdk2.cache_context import cache_conn
+from .cache_context import cache_conn
 from .consts import const
 
 
