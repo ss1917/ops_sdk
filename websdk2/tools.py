@@ -10,8 +10,12 @@ import sys
 import re
 import time
 import redis
+import logging
+from shortuuid import uuid
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
+from abc import ABC, abstractmethod
+from websdk2.cache_context import cache_conn
 from .consts import const
 
 
@@ -197,3 +201,87 @@ def deco(cls, release=False):
 
 def now_timestamp() -> int:
     return int(round(time.time() * 1000))
+
+
+class LockClientV2(ABC):
+    @abstractmethod
+    def get_lock(self, key_timeout=59, func_timeout=5):
+        pass
+
+    @abstractmethod
+    def release(self):
+        pass
+
+
+class RedisLockV2(LockClientV2):
+    def __init__(self, key, **conf):
+        # 注意: configs.import_dict(**settings) 是必须的
+        self.redis_client: redis.Redis = cache_conn()
+        self._lock = 0
+        self.lock_key = f"{key}_dynamic"
+        self.uuid = str(uuid())
+
+    def get_lock(self, key_timeout=59, func_timeout=5):
+        # key过期时间为一分钟，30秒内key任务没有完成则返回失败
+        start_time = time.time()
+        redis_client: redis.Redis = self.redis_client
+        _uuid = self.uuid
+        _lock_key = self.lock_key
+
+        while time.time() - start_time < func_timeout:
+            ok = redis_client.set(_lock_key, _uuid, nx=True, ex=key_timeout)
+            got_uuid = convert(redis_client.get(_lock_key))
+            if got_uuid == _uuid and ok:
+                return True
+            time.sleep(1)
+        return False
+
+    def release(self):
+        # 释放lock
+        redis_client: redis.Redis = self.redis_client
+        _uuid = self.uuid
+        _lock_key = self.lock_key
+        got_uuid = convert(redis_client.get(_lock_key))
+
+        if got_uuid == _uuid:
+            redis_client.delete(_lock_key)
+
+
+def deco_v2(cls: LockClientV2, release=False, key_timeout=59, func_timeout=5):
+    """ 示例
+    @deco_v2(RedisLockV2("codo:xxxx:v2:xxxx"), release=True, key_timeout=30)
+    def do_func():
+        print("the func called.")
+        time.sleep(50)
+        print("the func end")
+
+
+    do_func()
+
+
+    :param
+    cls: RedisLockV2实例
+    release: 是否释放key，默认不释放
+    key_timeout: key过期时间
+    func_timeout: 函数争抢锁超时时间
+    """
+
+    def _deco(func):
+        def __deco(*args, **kwargs):
+            try:
+                ok = cls.get_lock(key_timeout=key_timeout, func_timeout=func_timeout)
+                if not ok:
+                    return False
+            except Exception as e:
+                logging.error(f"[deco_v2] get lock func={func.__name__} error={str(e)}")
+                return False
+            try:
+                return func(*args, **kwargs)
+            finally:
+                # 执行完就释放key，默认不释放
+                if release:
+                    cls.release()
+
+        return __deco
+
+    return _deco
