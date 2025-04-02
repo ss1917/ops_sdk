@@ -15,7 +15,6 @@ from shortuuid import uuid
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from abc import ABC, abstractmethod
-from .cache_context import cache_conn
 from .consts import const
 
 
@@ -216,6 +215,7 @@ class LockClientV2(ABC):
 class RedisLockV2(LockClientV2):
     def __init__(self, key, **conf):
         # 注意: configs.import_dict(**settings) 是必须的
+        from .cache_context import cache_conn
         self.redis_client: redis.Redis = cache_conn()
         self._lock = 0
         self.lock_key = f"{key}_dynamic"
