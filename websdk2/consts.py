@@ -158,7 +158,9 @@ const.APP_SETTINGS = 'APP_SETTINGS'
 const.USERS_INFO = 'USERS_INFO'
 
 # API GW
+const.CODO_API_GW = 'api_gw'
 const.WEBSITE_API_GW_URL = 'api_gw'
+const.CODO_OUTER_API_GW = 'outer_api_gw'
 const.API_AUTH_KEY = 'settings_auth_key'
 const.EMAILLOGIN_DOMAIN = 'EMAILLOGIN_DOMAIN'
 const.EMAILLOGIN_SERVER = 'EMAILLOGIN_SERVER'
