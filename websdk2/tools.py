@@ -215,8 +215,18 @@ class LockClientV2(ABC):
 class RedisLockV2(LockClientV2):
     def __init__(self, key, **conf):
         # 注意: configs.import_dict(**settings) 是必须的
-        from .cache_context import cache_conn
-        self.redis_client: redis.Redis = cache_conn()
+        if not conf:
+            from .configs import configs
+            redis_config = configs.get(const.REDIS_CONFIG_ITEM, {})
+            default_config = redis_config.get(const.DEFAULT_RD_KEY, {})
+
+            conf = {
+                'host': default_config.get(const.RD_HOST_KEY, 'localhost'),
+                'port': default_config.get(const.RD_PORT_KEY, 6379),
+                'db': default_config.get(const.RD_DB_KEY, 0),
+                'password': default_config.get(const.RD_PASSWORD_KEY)
+            }
+        self.redis_client: redis.Redis = redis.Redis(**conf)
         self._lock = 0
         self.lock_key = f"{key}_dynamic"
         self.uuid = str(uuid())
