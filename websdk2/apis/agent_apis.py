@@ -16,8 +16,8 @@ class AgentAPIS:
     sync_files_url = f'{route_prefix}/v1/manager/agent/share_file/register'
     cloud_native_url = f'{route_prefix}/v1/manager/agent/task/cloud_native'
 
-    sync_files_register_url_v2 = f"{route_prefix}/agent/share_filev2/register"
-    sync_files_cancel_url_v2 = f"{route_prefix}/agent/share_filev2/cancel"
+    sync_files_register_url_v2 = f"{route_prefix}/v1/manager/agent/share_filev2/register"
+    sync_files_cancel_url_v2 = f"{route_prefix}/v1/manager/agent/share_filev2/cancel"
 
     get_agent_list = dict(method='GET',
                           url=agent_list_url,
