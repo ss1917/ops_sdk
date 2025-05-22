@@ -181,8 +181,23 @@ const.SMS_DOMAIN = "SMS_DOMAIN"
 
 const.SMS_ACCESS_KEY_ID = 'SMS_ACCESS_KEY_ID'
 const.SMS_ACCESS_KEY_SECRET = 'SMS_ACCESS_KEY_SECRET'
+
 # 钉钉
-const.DING_TALK_WEBHOOK = "DING_TALK_WEBHOOK"
+const.DINGTALK_CLIENT_ID = "dingtalk_client_id"
+const.DINGTALK_CLIENT_SECRET = "dingtalk_client_secret"
+const.DINGTALK_AGENT_ID = "dingtalk_agent_id"
+const.DINGTALK_AUTH = "dingtalk_auth"
+
+# 飞书
+const.FEISHU_CLIENT_ID = "feishu_client_id"
+const.FEISHU_CLIENT_SECRET = "feishu_client_secret"
+const.FEISHU_AUTH = "feishu_auth"
+
+# 企微
+const.WECHATWORK_CORP_ID = "wechatwork_corp_id"
+const.WECHATWORK_AGENT_ID = "wechatwork_agent_id"
+const.WECHATWORK_AUTH = "wechatwork_auth"
+
 # 存储
 const.STORAGE_REGION = "STORAGE_REGION"
 const.STORAGE_NAME = "STORAGE_NAME"
