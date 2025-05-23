@@ -133,3 +133,9 @@ def gen_md5(pd):
     m2 = hashlib.md5()
     m2.update(pd.encode("utf-8"))
     return m2.hexdigest()
+
+
+def generate_otp_secret():
+    import os
+    import base64
+    return base64.b32encode(os.urandom(32)).decode('utf-8').strip('=')

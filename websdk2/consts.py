@@ -216,11 +216,12 @@ const.LDAP_ATTRIBUTES = "LDAP_ATTRIBUTES"
 const.LDAP_USE_SSL = "LDAP_USE_SSL"
 const.LDAP_ENABLE = "LDAP_ENABLE"
 
-### token 超时时间
+# token 超时时间
 const.TOKEN_EXP_TIME = "TOKEN_EXP_TIME"
 
-### 全局 二次认证
-const.MFA_GLOBAL = 'MFA_GLOBAL'
+# 二次认证
+const.MFA_GLOBAL = 'MFA_GLOBAL'  # 全局开启
+const.MFA_ADMIN_ONLY = 'MFA_ADMIN_ONLY'  # 管理员开启
 
 # task event 状态
 const.STATE_NEW = '0'  # 新建任务
