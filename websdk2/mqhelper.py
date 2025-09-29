@@ -16,8 +16,17 @@ from .consts import const
 from .configs import configs
 from .error import ConfigError
 
-logger = logging.getLogger('pika')
-logger.setLevel(logging.WARNING)
+# 配置pika日志级别
+pika_logger = logging.getLogger('pika')
+pika_logger.setLevel(logging.ERROR)
+
+# 屏蔽pika诊断日志噪音
+pika_diagnostic_logger = logging.getLogger('pika.diagnostic_utils')
+pika_diagnostic_logger.setLevel(logging.CRITICAL)
+
+# 屏蔽pika适配器日志噪音
+pika_adapter_logger = logging.getLogger('pika.adapters')
+pika_adapter_logger.setLevel(logging.CRITICAL)
 
 
 # class MessageQueueBase(object):
@@ -160,12 +169,12 @@ class RabbitMQConnectionPool:
                 port=int(mq_config[const.MQ_PORT]),
                 virtual_host=mq_config[const.MQ_VHOST],
                 credentials=credentials,
-                heartbeat=300,  # 减少心跳间隔
-                blocked_connection_timeout=60,  # 减少阻塞超时
-                socket_timeout=30,  # 添加socket超时
-                connection_attempts=3,  # 连接重试次数
-                retry_delay=1,  # 重试延迟
-                stack_timeout=30  # 栈超时
+                heartbeat=600,  # 减少心跳间隔
+                blocked_connection_timeout=300,  # 减少阻塞超时
+                socket_timeout=60,  # 添加socket超时
+                connection_attempts=2,  # 连接重试次数
+                retry_delay=2,  # 重试延迟
+                stack_timeout=60  # 栈超时
             )
 
             connection = pika.BlockingConnection(connection_params)
