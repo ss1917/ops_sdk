@@ -385,7 +385,8 @@ class MessageQueueBase:
     # ==================== 发布消息接口 ====================
 
     def publish(self, body: Any, routing_key: Optional[str] = None,
-                durable: bool = True, exchange_durable: bool = False) -> None:
+                durable: bool = True, exchange_durable: bool = False,
+                queue_durable: bool = None) -> None:  # 🔥 新增参数：允许单独控制队列持久性
         """发布消息"""
 
         def _publish_operation():
@@ -402,7 +403,9 @@ class MessageQueueBase:
 
                 # 如果有队列名，声明并绑定队列
                 if self._queue_name:
-                    channel.queue_declare(queue=self._queue_name, durable=True)
+                    # 🔥 修改：支持单独控制队列持久性，解决队列配置冲突问题
+                    actual_queue_durable = queue_durable if queue_durable is not None else durable
+                    channel.queue_declare(queue=self._queue_name, durable=actual_queue_durable)
                     channel.queue_bind(
                         exchange=self._exchange,
                         queue=self._queue_name,
@@ -443,7 +446,8 @@ class MessageQueueBase:
                                          durable=exchange_durable)
                 # 声明队列
                 if self._queue_name:
-                    result = channel.queue_declare(queue=self._queue_name, durable=True)
+                    # 🔥 修改：消费者也使用默认的非持久化队列设置，避免配置冲突
+                    result = channel.queue_declare(queue=self._queue_name, durable=False)
                 else:
                     result = channel.queue_declare('', exclusive=True)
 
@@ -530,9 +534,10 @@ class MessageQueueBase:
             RabbitMQConnectionPool._connections[self._mq_key] = None
 
     # 统一的向后兼容发布方法
-    def publish_message(self, body: Any, durable: bool = True, exchange_durable: bool = False) -> None:
+    def publish_message(self, body: Any, durable: bool = True, exchange_durable: bool = False,
+                       queue_durable: bool = None) -> None:  # 🔥 新增参数：向后兼容方法也支持队列持久性控制
         """向后兼容的发布方法"""
-        self.publish(body, durable=durable, exchange_durable=exchange_durable)
+        self.publish(body, durable=durable, exchange_durable=exchange_durable, queue_durable=queue_durable)
 
     def close_channel(self) -> None:
         """关闭连接（向后兼容）"""
