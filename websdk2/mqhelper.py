@@ -120,6 +120,7 @@ logger.setLevel(logging.WARNING)
 #         else:
 #             self.__channel.basic_publish(exchange=self.__exchange, routing_key=self.__routing_key, body=body)
 #         logging.info('Publish message %s sucessfuled.' % body)
+
 class RabbitMQConnectionPool:
     """RabbitMQ连接池管理器 - 实现一个应用一个连接的最佳实践"""
 
@@ -148,21 +149,36 @@ class RabbitMQConnectionPool:
             mq_config = configs[const.MQ_CONFIG_ITEM][mq_key]
             cls._validate_config(mq_config)
 
-            # 创建连接
+            # 创建连接参数，优化超时和重试设置
             credentials = pika.PlainCredentials(
                 mq_config[const.MQ_USER],
                 mq_config[const.MQ_PWD]
             )
-            connection = pika.BlockingConnection(
-                pika.ConnectionParameters(
-                    host=mq_config[const.MQ_ADDR],
-                    port=int(mq_config[const.MQ_PORT]),
-                    virtual_host=mq_config[const.MQ_VHOST],
-                    credentials=credentials,
-                    heartbeat=600,
-                    blocked_connection_timeout=300
-                )
+
+            connection_params = pika.ConnectionParameters(
+                host=mq_config[const.MQ_ADDR],
+                port=int(mq_config[const.MQ_PORT]),
+                virtual_host=mq_config[const.MQ_VHOST],
+                credentials=credentials,
+                heartbeat=300,  # 减少心跳间隔
+                blocked_connection_timeout=60,  # 减少阻塞超时
+                socket_timeout=30,  # 添加socket超时
+                connection_attempts=3,  # 连接重试次数
+                retry_delay=1,  # 重试延迟
+                stack_timeout=30,  # 栈超时
+                # 添加TCP连接参数   某些系统上可能不被支持 删除
+                # tcp_options={
+                #     'TCP_KEEPIDLE': 60,
+                #     'TCP_KEEPINTVL': 30,
+                #     'TCP_KEEPCNT': 3
+                # }
             )
+
+            connection = pika.BlockingConnection(connection_params)
+
+            # 验证连接状态
+            if not connection.is_open:
+                raise Exception("Connection failed to open properly")
 
             cls._connections[mq_key] = connection
             logging.info(f"Created new RabbitMQ connection for key: {mq_key}")
@@ -254,10 +270,49 @@ class MessageQueueBase:
                 f"you must provide a queue_name to avoid anonymous queues."
             )
 
+    # def _get_channel(self) -> Any:
+    #     """获取新的通道"""
+    #     connection = RabbitMQConnectionPool.get_connection(self._mq_key)
+    #     return connection.channel()
+
     def _get_channel(self) -> Any:
         """获取新的通道"""
-        connection = RabbitMQConnectionPool.get_connection(self._mq_key)
-        return connection.channel()
+        max_attempts = 3
+        for attempt in range(max_attempts):
+            try:
+                connection = RabbitMQConnectionPool.get_connection(self._mq_key)
+                if not connection or not connection.is_open:
+                    raise Exception("Connection is not available or not open")
+
+                # 添加连接状态检查
+                try:
+                    # 尝试发送心跳检查连接状态
+                    connection.process_data_events(time_limit=0)
+                except:
+                    raise Exception("Connection heartbeat failed")
+
+                channel = connection.channel()
+                if not channel or not channel.is_open:
+                    raise Exception("Channel is not available or not open")
+                return channel
+
+            except Exception as e:
+                self.logger.warning(f"Failed to get healthy channel (attempt {attempt + 1}): {e}")
+                if attempt < max_attempts - 1:
+                    # 清理并重建连接
+                    with RabbitMQConnectionPool._connection_lock:
+                        try:
+                            RabbitMQConnectionPool._cleanup_connection(self._mq_key)
+                            RabbitMQConnectionPool._connections[self._mq_key] = None
+                        except Exception as cleanup_e:
+                            self.logger.warning(f"Error during connection cleanup: {cleanup_e}")
+
+                    # 短暂等待后重试
+                    import time
+                    time.sleep(0.1 * (attempt + 1))
+                else:
+                    # 最后一次尝试失败，抛出异常
+                    raise Exception(f"Failed to get channel after {max_attempts} attempts: {e}")
 
     def _with_retry(self, operation: Callable, *args, **kwargs) -> Any:
         """带重试机制执行操作"""
@@ -273,8 +328,25 @@ class MessageQueueBase:
                     break
                 else:
                     self.logger.warning(f"Attempt {attempt + 1} failed: {e}. Retrying...")
-                    # 触发连接重建
-                    RabbitMQConnectionPool._connections[self._mq_key] = None
+
+                    # 只在特定错误类型时清理连接
+                    error_str = str(e).lower()
+                    if any(keyword in error_str for keyword in [
+                        'connection', 'channel', 'socket', 'transport',
+                        'callback', 'deque', 'abort', 'closed'
+                    ]):
+                        # 安全地清理连接
+                        with RabbitMQConnectionPool._connection_lock:
+                            try:
+                                if self._mq_key in RabbitMQConnectionPool._connections:
+                                    RabbitMQConnectionPool._cleanup_connection(self._mq_key)
+                                    RabbitMQConnectionPool._connections[self._mq_key] = None
+                            except Exception as cleanup_e:
+                                self.logger.debug(f"Error during connection cleanup: {cleanup_e}")
+
+                    # 递增延迟重试
+                    import time
+                    time.sleep(0.1 * (2 ** attempt))
 
         raise last_exception
 
@@ -498,5 +570,5 @@ if __name__ == "__main__":
 
     # 示例3：向后兼容的使用方式
     print("=== 向后兼容使用 ===")
-    with MessageQueueBase('test_exchange', 'direct', routing_key='test.key') as old_mq:
+    with MessageQueueBase('test_exchange', 'direct', routing_key='test.key', queue_name='task_test_queue') as old_mq:
         old_mq.publish_message("Hello from old interface!")

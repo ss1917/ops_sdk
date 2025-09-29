@@ -9,7 +9,7 @@ desc   : CODO SDK
 import sys
 from setuptools import setup, find_packages
 
-VERSION = '1.0.41'
+VERSION = '1.0.42'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('This program requires at least Python 2.7 or 3.6 to run.')
@@ -24,7 +24,7 @@ def get_data_files():
 
 
 def get_install_requires():
-    requires = ['fire==0.5.0', 'shortuuid==1.0.11', 'pymysql==0.9.3', 'sqlalchemy==1.3.23', 'pika==1.3.1',
+    requires = ['fire==0.5.0', 'shortuuid==1.0.11', 'pymysql==0.9.3', 'sqlalchemy==1.3.23', 'pika==1.3.2',
                 'PyJWT==2.0.1', 'requests==2.28.2', 'redis==4.5.1', 'tornado>=6.0', 'loguru>=0.6.0',
                 'cryptography==42.0.4', 'ldap3==2.9', 'pydantic>=1.10.5']
     return requires
