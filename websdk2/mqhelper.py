@@ -120,7 +120,6 @@ logger.setLevel(logging.WARNING)
 #         else:
 #             self.__channel.basic_publish(exchange=self.__exchange, routing_key=self.__routing_key, body=body)
 #         logging.info('Publish message %s sucessfuled.' % body)
-
 class RabbitMQConnectionPool:
     """RabbitMQ连接池管理器 - 实现一个应用一个连接的最佳实践"""
 
@@ -165,13 +164,7 @@ class RabbitMQConnectionPool:
                 socket_timeout=30,  # 添加socket超时
                 connection_attempts=3,  # 连接重试次数
                 retry_delay=1,  # 重试延迟
-                stack_timeout=30,  # 栈超时
-                # 添加TCP连接参数   某些系统上可能不被支持 删除
-                # tcp_options={
-                #     'TCP_KEEPIDLE': 60,
-                #     'TCP_KEEPINTVL': 30,
-                #     'TCP_KEEPCNT': 3
-                # }
+                stack_timeout=30  # 栈超时
             )
 
             connection = pika.BlockingConnection(connection_params)
@@ -270,52 +263,87 @@ class MessageQueueBase:
                 f"you must provide a queue_name to avoid anonymous queues."
             )
 
-    # def _get_channel(self) -> Any:
-    #     """获取新的通道"""
-    #     connection = RabbitMQConnectionPool.get_connection(self._mq_key)
-    #     return connection.channel()
-
     def _get_channel(self) -> Any:
-        """获取新的通道"""
-        max_attempts = 3
+        """获取新的通道 - 使用更安全的方式避免pika并发Bug"""
+        max_attempts = 2  # 减少重试次数避免过度重试
+
         for attempt in range(max_attempts):
             try:
+                # 每次都创建新连接，避免连接复用导致的并发问题
+                if attempt > 0:
+                    # 强制清理并等待
+                    with RabbitMQConnectionPool._connection_lock:
+                        try:
+                            if self._mq_key in RabbitMQConnectionPool._connections:
+                                RabbitMQConnectionPool._cleanup_connection(self._mq_key)
+                                RabbitMQConnectionPool._connections[self._mq_key] = None
+                        except:
+                            pass
+
+                    # 等待稍长时间让连接完全清理
+                    time.sleep(0.5)
+
                 connection = RabbitMQConnectionPool.get_connection(self._mq_key)
-                if not connection or not connection.is_open:
-                    raise Exception("Connection is not available or not open")
+                if not connection:
+                    raise Exception("Failed to get connection")
 
-                # 添加连接状态检查
-                try:
-                    # 尝试发送心跳检查连接状态
-                    connection.process_data_events(time_limit=0)
-                except:
-                    raise Exception("Connection heartbeat failed")
+                # 简化状态检查，避免触发pika内部Bug
+                if hasattr(connection, 'is_open') and not connection.is_open:
+                    raise Exception("Connection is not open")
 
+                # 直接创建channel，不做额外的心跳检查
                 channel = connection.channel()
-                if not channel or not channel.is_open:
-                    raise Exception("Channel is not available or not open")
+                if not channel:
+                    raise Exception("Failed to create channel")
+
+                if hasattr(channel, 'is_open') and not channel.is_open:
+                    raise Exception("Channel is not open")
+
                 return channel
 
             except Exception as e:
-                self.logger.warning(f"Failed to get healthy channel (attempt {attempt + 1}): {e}")
-                if attempt < max_attempts - 1:
-                    # 清理并重建连接
-                    with RabbitMQConnectionPool._connection_lock:
-                        try:
-                            RabbitMQConnectionPool._cleanup_connection(self._mq_key)
-                            RabbitMQConnectionPool._connections[self._mq_key] = None
-                        except Exception as cleanup_e:
-                            self.logger.warning(f"Error during connection cleanup: {cleanup_e}")
+                self.logger.warning(f"Failed to get channel (attempt {attempt + 1}/{max_attempts}): {e}")
+                if attempt == max_attempts - 1:
+                    # 最后一次失败，创建一个临时连接
+                    try:
+                        return self._create_emergency_channel()
+                    except Exception as emergency_e:
+                        raise Exception(f"All channel attempts failed. Last error: {e}, Emergency error: {emergency_e}")
 
-                    # 短暂等待后重试
-                    import time
-                    time.sleep(0.1 * (attempt + 1))
-                else:
-                    # 最后一次尝试失败，抛出异常
-                    raise Exception(f"Failed to get channel after {max_attempts} attempts: {e}")
+        raise Exception("Unexpected error in channel creation")
+
+    def _create_emergency_channel(self) -> Any:
+        """创建紧急通道 - 直接连接，不使用连接池"""
+        try:
+            mq_config = configs[const.MQ_CONFIG_ITEM][self._mq_key]
+
+            credentials = pika.PlainCredentials(
+                mq_config[const.MQ_USER],
+                mq_config[const.MQ_PWD]
+            )
+
+            # 使用最简单的连接参数
+            connection_params = pika.ConnectionParameters(
+                host=mq_config[const.MQ_ADDR],
+                port=int(mq_config[const.MQ_PORT]),
+                virtual_host=mq_config[const.MQ_VHOST],
+                credentials=credentials,
+                heartbeat=0,  # 禁用心跳
+                socket_timeout=10
+            )
+
+            connection = pika.BlockingConnection(connection_params)
+            channel = connection.channel()
+
+            self.logger.info("Created emergency channel")
+            return channel
+
+        except Exception as e:
+            self.logger.error(f"Failed to create emergency channel: {e}")
+            raise
 
     def _with_retry(self, operation: Callable, *args, **kwargs) -> Any:
-        """带重试机制执行操作"""
+        """带重试机制执行操作 - 优化版本"""
         last_exception = None
 
         for attempt in range(self._max_retries + 1):
@@ -333,7 +361,7 @@ class MessageQueueBase:
                     error_str = str(e).lower()
                     if any(keyword in error_str for keyword in [
                         'connection', 'channel', 'socket', 'transport',
-                        'callback', 'deque', 'abort', 'closed'
+                        'callback', 'deque', 'abort', 'closed', 'asynctransport'
                     ]):
                         # 安全地清理连接
                         with RabbitMQConnectionPool._connection_lock:
@@ -344,9 +372,8 @@ class MessageQueueBase:
                             except Exception as cleanup_e:
                                 self.logger.debug(f"Error during connection cleanup: {cleanup_e}")
 
-                    # 递增延迟重试
-                    import time
-                    time.sleep(0.1 * (2 ** attempt))
+                    # 递增延迟重试，但不要太长
+                    time.sleep(min(0.1 * (2 ** attempt), 2.0))
 
         raise last_exception
 
@@ -374,7 +401,7 @@ class MessageQueueBase:
 
                 # 如果有队列名，声明并绑定队列
                 if self._queue_name:
-                    channel.queue_declare(queue=self._queue_name)
+                    channel.queue_declare(queue=self._queue_name, durable=True)
                     channel.queue_bind(
                         exchange=self._exchange,
                         queue=self._queue_name,
@@ -394,8 +421,11 @@ class MessageQueueBase:
                     f'Published message to exchange:{self._exchange}, routing_key:{actual_routing_key}')
 
             finally:
-                if channel and channel.is_open:
-                    channel.close()
+                if channel and hasattr(channel, 'is_open') and channel.is_open:
+                    try:
+                        channel.close()
+                    except:
+                        pass  # 忽略关闭时的错误
 
         self._with_retry(_publish_operation)
 
@@ -445,11 +475,17 @@ class MessageQueueBase:
 
             except KeyboardInterrupt:
                 self.logger.info("Received interrupt signal, stopping consumption")
-                if channel and channel.is_open:
-                    channel.stop_consuming()
+                if channel and hasattr(channel, 'is_open') and channel.is_open:
+                    try:
+                        channel.stop_consuming()
+                    except:
+                        pass
             finally:
-                if channel and channel.is_open:
-                    channel.close()
+                if channel and hasattr(channel, 'is_open') and channel.is_open:
+                    try:
+                        channel.close()
+                    except:
+                        pass
 
         self._with_retry(_consume_operation)
 
