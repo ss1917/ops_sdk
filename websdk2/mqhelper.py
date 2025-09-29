@@ -446,8 +446,7 @@ class MessageQueueBase:
                                          durable=exchange_durable)
                 # 声明队列
                 if self._queue_name:
-                    # 🔥 修改：消费者也使用默认的非持久化队列设置，避免配置冲突
-                    result = channel.queue_declare(queue=self._queue_name, durable=False)
+                    result = channel.queue_declare(queue=self._queue_name, durable=True)
                 else:
                     result = channel.queue_declare('', exclusive=True)
 
