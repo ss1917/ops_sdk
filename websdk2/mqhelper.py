@@ -9,6 +9,7 @@ role   : rabbitMQ 操作类
 import logging
 import traceback
 import pika
+import time
 import threading
 from typing import Optional, List, Dict, Any, Callable
 from .consts import const
