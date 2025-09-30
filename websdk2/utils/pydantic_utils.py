@@ -15,16 +15,21 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.orm.properties import ColumnProperty
 
 
-### 删除的时候一般只有id
+# 删除的时候一般只有id
 class PydanticDel(BaseModel):
     id: int
+
 
 class PydanticDelList(BaseModel):
     id_list: list[int]
 
 
 class OrmConfig(BaseConfig):
-    orm_mode = True
+    # Pydantic V1/V2 自动兼容, TODO 后续移除V1兼容
+    try:
+        from_attributes = True  # Pydantic V2
+    except Exception:
+        orm_mode = True  # Pydantic V1
 
 
 def sqlalchemy_to_pydantic(db_model: Type, *, config: Type = OrmConfig, exclude: Container[str] = []) -> Type[

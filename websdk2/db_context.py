@@ -1,4 +1,5 @@
-# -*-coding:utf-8-*-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Author : shenshuo
 date   : 2017年10月17日17:23:19
@@ -14,71 +15,130 @@ from .consts import const
 from .configs import configs
 
 engines = {}
+scheduler_engines = {}
 
 
-def init_engine(**settings):
-    if settings:
-        databases = settings[const.DB_CONFIG_ITEM]
-    else:
-        databases = configs[const.DB_CONFIG_ITEM]
+class DBConfigError(Exception):
+    pass
+
+
+# 调度器专用引擎池
+
+def init_scheduler_engine(**settings):
+    databases = settings.get(const.DB_CONFIG_ITEM) or configs[const.DB_CONFIG_ITEM]
+
     for dbkey, db_conf in databases.items():
-        dbuser = db_conf[const.DBUSER_KEY]
-        dbpwd = db_conf[const.DBPWD_KEY]
-        dbhost = db_conf[const.DBHOST_KEY]
-        dbport = db_conf[const.DBPORT_KEY]
-        dbname = db_conf[const.DBNAME_KEY]
-        engine = create_engine('mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8mb4'
-                               .format(user=dbuser, pwd=quote_plus(dbpwd), host=dbhost, port=dbport, dbname=dbname),
-                               # logging_name=dbkey)
-                               logging_name=dbkey, poolclass=NullPool)
+        # 获取配置
+        dbuser = db_conf.get(const.DBUSER_KEY)
+        dbpwd = db_conf.get(const.DBPWD_KEY)
+        dbhost = db_conf.get(const.DBHOST_KEY)
+        dbport = db_conf.get(const.DBPORT_KEY)
+        dbname = db_conf.get(const.DBNAME_KEY)
+
+        # 验证配置完整性
+        if None in (dbuser, dbpwd, dbhost, dbname):
+            raise DBConfigError(f"Incomplete database configuration for '{dbkey}'")
+
+        # 创建调度器专用引擎（小规格连接池）
+        engine = create_engine(
+            f'mysql+pymysql://{dbuser}:{quote_plus(dbpwd)}@{dbhost}:{dbport}/{dbname}?charset=utf8mb4',
+            logging_name=dbkey,
+            poolclass=None,  # QueuePool
+            pool_size=10,  # 10个常驻连接（调度器用）
+            max_overflow=30,  # 30个溢出连接
+            pool_recycle=1800,  # 30分钟回收
+            pool_pre_ping=True,  # 启用连接检查
+            pool_timeout=10,  # 5秒超时
+            echo_pool=False  # 关闭连接池日志
+        )
+
+        scheduler_engines[dbkey] = engine
+
+
+def get_scheduler_engine(dbkey='default', **settings):
+    if not scheduler_engines:
+        init_scheduler_engine(**settings)
+    return scheduler_engines[dbkey]
+
+
+def _build_db_url(db_conf, const) -> str:
+    """构建数据库连接URL"""
+    return 'mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8mb4'.format(
+        user=db_conf[const.DBUSER_KEY],
+        pwd=quote_plus(db_conf[const.DBPWD_KEY]),
+        host=db_conf[const.DBHOST_KEY],
+        port=db_conf[const.DBPORT_KEY],
+        dbname=db_conf[const.DBNAME_KEY]
+    )
+
+
+def init_engine(use_pool=False, pool_config=None, **settings):
+    databases = settings.get(const.DB_CONFIG_ITEM) or configs[const.DB_CONFIG_ITEM]
+
+    # 默认连接池配置 - 优化后的推荐值
+    default_pool_config = {
+        'pool_size': 20,  # 常驻连接: 20 (原10)
+        'max_overflow': 30,  # 溢出连接: 30 (原50, 过大)
+        'pool_recycle': 3600,  # 回收时间: 1小时
+        'pool_pre_ping': True,  # 预检查: 启用 (避免僵尸连接)
+        'pool_timeout': 20,  # 获取超时: 20秒 (原60秒, 过长)
+        'echo_pool': False,  # 连接池日志: 关闭 (生产环境)
+    }
+
+    # 合并用户自定义配置
+    if pool_config:
+        default_pool_config.update(pool_config)
+
+    for dbkey, db_conf in databases.items():
+        db_url = _build_db_url(db_conf, const)
+
+        if use_pool:
+            # 使用连接池配置
+            engine = create_engine(
+                db_url,
+                logging_name=dbkey,
+                poolclass=None,  # 默认 QueuePool
+                **default_pool_config
+            )
+        else:
+            # 不使用连接池 (每次新建连接)
+            engine = create_engine(db_url, logging_name=dbkey, poolclass=NullPool)
+
         engines[dbkey] = engine
 
 
 def get_db_url(dbkey):
-    databases = configs[const.DB_CONFIG_ITEM]
-    db_conf = databases[dbkey]
-    dbuser = db_conf['user']
-    dbpwd = db_conf['pwd']
-    dbhost = db_conf['host']
-    dbport = db_conf.get('port', 3306)
-    dbname = db_conf['name']
-
-    return 'mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8mb4'.format(user=dbuser, pwd=quote_plus(dbpwd),
-                                                                                     host=dbhost, port=dbport,
-                                                                                     dbname=dbname, poolclass=NullPool)
+    """获取数据库连接URL"""
+    db_conf = configs[const.DB_CONFIG_ITEM][dbkey]
+    return _build_db_url(db_conf, const)
 
 
-class DBContext(object):
-    def __init__(self, rw='r', db_key=None, need_commit=False, **settings):
-        self.__db_key = db_key
-        if not self.__db_key:
-            if rw == 'w':
-                self.__db_key = const.DEFAULT_DB_KEY
-            elif rw == 'r':
-                self.__db_key = const.READONLY_DB_KEY
-        engine = self.__get_db_engine(self.__db_key, **settings)
-        self.__engine = engine
+class DBContext:
+    def __init__(self, rw='r', db_key=None, need_commit=False, use_pool=False, pool_config=None, **settings):
+        self.__db_key = db_key or (const.DEFAULT_DB_KEY if rw == 'w' else const.READONLY_DB_KEY)
+        self.__engine = self.__get_db_engine(self.__db_key, use_pool, pool_config, **settings)
         self.need_commit = need_commit
-
-    # @property
-    # def db_key(self):
-    #     return self.__db_key
+        self.__session = None
 
     @staticmethod
-    def __get_db_engine(db_key, **settings):
-        if len(engines) == 0:
-            init_engine(**settings)
+    def __get_db_engine(db_key, use_pool, pool_config, **settings):
+        """获取数据库引擎"""
+        if not engines:
+            init_engine(use_pool=use_pool, pool_config=pool_config, **settings)
         return engines[db_key]
 
     @property
     def session(self):
+        """获取session"""
         return self.__session
 
     def __enter__(self):
+        """进入上下文"""
         self.__session = sessionmaker(bind=self.__engine)()
         return self.__session
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """退出上下文"""
         if self.need_commit:
             if exc_type:
                 self.__session.rollback()
@@ -87,64 +147,11 @@ class DBContext(object):
         self.__session.close()
 
     def get_session(self):
+        """获取session（向后兼容）"""
         return self.__session
 
 
-def init_engine_v2(**settings):
-    if settings:
-        databases = settings[const.DB_CONFIG_ITEM]
-    else:
-        databases = configs[const.DB_CONFIG_ITEM]
-    for dbkey, db_conf in databases.items():
-        dbuser = db_conf[const.DBUSER_KEY]
-        dbpwd = db_conf[const.DBPWD_KEY]
-        dbhost = db_conf[const.DBHOST_KEY]
-        dbport = db_conf[const.DBPORT_KEY]
-        dbname = db_conf[const.DBNAME_KEY]
-        engine = create_engine('mysql+pymysql://{user}:{pwd}@{host}:{port}/{dbname}?charset=utf8mb4'
-                               .format(user=dbuser, pwd=quote_plus(dbpwd), host=dbhost, port=dbport, dbname=dbname),
-                               logging_name=dbkey, poolclass=None, pool_size=10, max_overflow=50, pool_recycle=3600,
-                               pool_pre_ping=True, pool_timeout=60)
-        engines[dbkey] = engine
+# ==================== 向后兼容 ====================
 
-
-class DBContextV2(object):
-    def __init__(self, rw='r', db_key=None, need_commit=False, **settings):
-        self.__db_key = db_key
-        if not self.__db_key:
-            if rw == 'w':
-                self.__db_key = const.DEFAULT_DB_KEY
-            elif rw == 'r':
-                self.__db_key = const.READONLY_DB_KEY
-        engine = self.__get_db_engine(self.__db_key, **settings)
-        self.__engine = engine
-        self.need_commit = need_commit
-
-    # @property
-    # def db_key(self):
-    #     return self.__db_key
-
-    @staticmethod
-    def __get_db_engine(db_key, **settings):
-        if len(engines) == 0:
-            init_engine_v2(**settings)
-        return engines[db_key]
-
-    @property
-    def session(self):
-        return self.__session
-
-    def __enter__(self):
-        self.__session = sessionmaker(bind=self.__engine)()
-        return self.__session
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.need_commit:
-            if exc_type:
-                self.__session.rollback()
-            else:
-                self.__session.commit()
-        self.__session.close()
-
-    def get_session(self):
-        return self.__session
+# DBContextV2 别名（完全兼容旧代码）
+DBContextV2 = DBContext
