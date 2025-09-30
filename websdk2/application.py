@@ -64,11 +64,11 @@ class Application(tornadoApp):
             logging.info('server address: %(addr)s:%(port)d' % dict(addr=options.addr, port=options.port))
             logging.info('web server start sucessfuled.')
             self.io_loop.start()
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, SystemExit):
             self.io_loop.stop()
             logging.info("Server shut down gracefully.")
-        except Exception as e:
-            logging.error(f"Unexpected error: {e}", exc_info=True)
+        except Exception as err:
+            logging.exception("Unhandled exception: %s", err)
 
     @staticmethod
     def _generate_url_metadata(urls):
