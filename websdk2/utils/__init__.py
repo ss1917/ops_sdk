@@ -279,16 +279,13 @@ def echo_datetime_now_f():
 
 
 def echo_execute_time(func):
-    import logging
-    from time import time
-
     # 定义嵌套函数，用来打印出装饰的函数的执行时间
     def wrapper(*args, **kwargs):
         # 定义开始时间和结束时间，将func夹在中间执行，取得其返回值
-        start = time()
+        start = time.time()
         func_return = func(*args, **kwargs)
-        end = time()
-        logging.warning(f'{func.__name__}() execute time: {end - start}s')
+        end = time.time()
+        logging.info(f'{func.__name__}() execute time: {end - start}s')
         return func_return
 
     # 返回嵌套的函数

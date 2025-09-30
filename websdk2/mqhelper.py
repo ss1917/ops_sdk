@@ -493,6 +493,7 @@ class MessageQueueBase:
                         channel.stop_consuming()
                     except:
                         pass
+                raise
             finally:
                 if channel and hasattr(channel, 'is_open') and channel.is_open:
                     try:
@@ -505,7 +506,7 @@ class MessageQueueBase:
     def call_back(self, ch: Any, method: Any, properties: Any, body: bytes) -> None:
         """默认消息回调处理"""
         try:
-            self.logger.info('Received message')
+            # self.logger.info('Received message')
             self.on_message(body)
 
             if not self._no_ack:
