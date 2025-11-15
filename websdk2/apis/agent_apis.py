@@ -18,6 +18,7 @@ class AgentAPIS:
 
     sync_files_register_url_v2 = f"{route_prefix}/v1/manager/agent/share_filev2/register"
     sync_files_cancel_url_v2 = f"{route_prefix}/v1/manager/agent/share_filev2/cancel"
+    get_agent_task_result_url = f"{route_prefix}/v1/manager/agent/task/result'"
 
     get_agent_list = dict(method='GET',
                           url=agent_list_url,
@@ -75,5 +76,13 @@ class AgentAPIS:
                                  url=cloud_native_url,
                                  params={},
                                  field_help={
+                                 },
+                                 description='云原生任务查询')
+
+    get_agent_task_result = dict(method='GET',
+                                 url=get_agent_task_result_url,
+                                 params={},
+                                 field_help={
+                                     'task_id': "提供任务ID"
                                  },
                                  description='云原生任务查询')
