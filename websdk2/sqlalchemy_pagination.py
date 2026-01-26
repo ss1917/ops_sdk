@@ -48,6 +48,7 @@ def paginate(query, order_by: str = None, **query_params):
     else:
         items = query.all() if page_size >= 200 else query.limit(page_size).offset((page - 1) * page_size).all()
 
-    total = query.count()
+    # 计算总数：去掉排序避免 filesort
+    total = query.order_by(None).count()
     if not items_not_to_list: items = queryset_to_list(items)
     return Page(items, page, page_size, total)
