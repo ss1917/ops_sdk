@@ -99,6 +99,22 @@ token = auth.encode_auth_token(
 user_info = auth.decode_auth_token(token)
 ```
 
+### 开放 API（AK/SK）
+
+适用于 CI、集成方等编程访问。网关校验 `CODO1-HMAC-SHA256` 签名后签发短时内部 JWT。
+
+```python
+from websdk2.openapi_client import OpenAPIClient
+
+client = OpenAPIClient(
+    endpoint="https://gw.example.com",
+    access_key="your-ak",
+    secret_key="your-sk",
+)
+resp = client.request("GET", "/api/p/v4/biz/list/")
+print(resp.status_code, resp.text)
+```
+
 ### 消息队列
 
 ```python

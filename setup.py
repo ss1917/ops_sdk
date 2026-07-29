@@ -2,14 +2,14 @@
 # -*-coding:utf-8-*-
 """"
 author : shenshuo
-date   : 2024年12月12日
+date   : 2026年07月29日
 desc   : CODO SDK
 """
 
 import sys
 from setuptools import setup, find_packages
 
-VERSION = '1.0.56'
+VERSION = '1.0.57'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('This program requires at least Python 2.7 or 3.6 to run.')
