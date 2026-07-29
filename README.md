@@ -115,6 +115,28 @@ resp = client.request("GET", "/api/p/v4/biz/list/")
 print(resp.status_code, resp.text)
 ```
 
+## codo-cli（开放 API 命令行）
+
+一期通过 **AK/SK** 调用 **codo-admin**（网关前缀 `/api/p`）。
+
+**完整说明见 [codo_cli/README.md](codo_cli/README.md)。API 目录：`websdk2/apis/mgv4_apis.py`。**。
+
+
+### 快速开始
+
+```bash
+pip install -U codosdk          # 已含 codo-cli 入口；开发：pip install -e .
+codo-cli config init
+# 编辑 ~/.codo/config.yaml 的 endpoint、access_key
+export CODO_SECRET_KEY='你的SK'  # 禁止写入配置文件
+
+codo-cli admin list
+codo-cli admin call get_biz_list --pretty
+codo-cli admin biz-list
+codo-cli api request GET /api/p/v4/biz/list/ --pretty
+codo-cli api request POST /api/p/v4/user/ -d @body.json --yes   # 写操作必须 --yes
+```
+
 ### 消息队列
 
 ```python
