@@ -25,7 +25,7 @@ def get_data_files():
 
 def get_install_requires():
     requires = ['fire==0.5.0', 'shortuuid==1.0.11', 'pymysql==0.9.3', 'sqlalchemy==1.3.23', 'pika==1.3.2',
-                'PyJWT==2.0.1', 'requests==2.28.2', 'redis==4.5.1', 'tornado>=6.0', 'loguru>=0.6.0',
+                'PyJWT==2.0.1', 'requests==2.33.0', 'redis==4.5.1', 'tornado>=6.0', 'loguru>=0.6.0',
                 'cryptography==42.0.4', 'ldap3==2.9', 'pydantic>=1.10.5']
     return requires
 
