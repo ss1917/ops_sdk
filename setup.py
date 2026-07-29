@@ -2,14 +2,14 @@
 # -*-coding:utf-8-*-
 """"
 author : shenshuo
-date   : 2026年07月29日
+date   : 2024年12月12日
 desc   : CODO SDK
 """
 
 import sys
 from setuptools import setup, find_packages
 
-VERSION = '1.0.58'
+VERSION = '1.0.59'
 
 if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 6):
     print('This program requires at least Python 2.7 or 3.6 to run.')
@@ -36,10 +36,18 @@ setup(
     description="CODO项目的Python SDK",
     # packages=['opssdk', 'opssdk.utils', 'websdk2', 'websdk2.apis', 'websdk2.cloud', 'websdk2.utils'],
     packages=find_packages(),
-    url='https://github.com/ss1917/codo_sdk/',
+    url='https://github.com/ss1917/ops_sdk/',
     license='GPLv3',
     keywords="ops, codo, devops",
     install_requires=get_install_requires(),
+    extras_require={
+        'cli': ['PyYAML>=5.1'],
+    },
+    entry_points={
+        'console_scripts': [
+            'codo-cli=codo_cli.main:main',
+        ],
+    },
     author='shenshuo',
     author_email='191715030@qq.com',
     long_description='SDK of the operation and maintenance script logs operate',
