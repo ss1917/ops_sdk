@@ -7,7 +7,7 @@ CODO **开放 API** 命令行客户端。通过网关使用 **AK/SK + HMAC 签�
 | 命令名 | `codo-cli` |
 | 鉴权 | 仅 OpenAPI AccessKey / SecretKey（不走控制台密码登录） |
 | HTTP | 复用 `websdk2.openapi_client.OpenAPIClient`，不重复实现签名 |
-| API 目录 | `websdk2/apis/mgv4_apis.py` → `AdminV4APIS` |
+| API 目录 | admin/cmdb/k2/cnmp/iris 见 `websdk2/apis/*_apis.py` |
 | 配置文件 | `~/.codo/config.yaml` |
 | SecretKey | **禁止写入配置文件**，只用环境变量或一次性参数 |
 
@@ -106,6 +106,37 @@ codo-cli api request GET /api/p/v4/biz/list/ --pretty
 ```
 
 ---
+
+
+## 多服务命令
+
+网关前缀（与产品约定一致）：
+
+| 服务 | 网关前缀 | CLI | API 类 |
+|---|---|---|---|
+| codo-admin | `/api/p` | `codo-cli admin` | `AdminV4APIS` |
+| codo-cmdb | `/api/cmdb` | `codo-cli cmdb` | `CMDBAPIS` |
+| codo-k2（配置中心 **V2 新项目**） | `/api/k2` | `codo-cli k2` | `K2APIS` |
+| kerrigan（配置中心 **V1 老项目**） | `/api/kerrigan` | `codo-cli kerrigan` | `KerriganAPIS` |
+| codo-cnmp | `/api/cnmp` | `codo-cli cnmp` | `CNMPAPIS` |
+| codo-iris | `/api/iris` | `codo-cli iris` | `IrisAPIS` |
+
+```bash
+codo-cli cmdb list --quiet | head
+codo-cli cmdb call get_service_tree -p biz_id=1 --pretty
+codo-cli k2 list --filter project          # V2 新项目 /api/k2
+codo-cli k2 call get_v1_project_ --pretty
+codo-cli kerrigan list                     # V1 老项目 /api/kerrigan
+codo-cli kerrigan call get_publish_config -p project_code=demo --pretty
+codo-cli cnmp list --filter agent
+codo-cli cnmp call get_api_v1_agent_list --pretty
+codo-cli iris list --filter topology
+codo-cli iris call get_api_v1_topology_list --pretty
+codo-cli api request GET /api/cmdb/api/v2/cmdb/server/ --pretty
+```
+
+> **kerrigan vs k2：** kerrigan 是配置中心老版本（`/api/kerrigan`）；k2（codo-k2）是 V2 新项目（`/api/k2`）。CLI 与 API 类均分开，不要混用路径。
+
 
 ## 配置说明
 

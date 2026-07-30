@@ -2,9 +2,9 @@
 
 [![Python](https://img.shields.io/badge/Python-%3E%3D3.9-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-GPLv3-green)](https://www.gnu.org/licenses/gpl-3.0.html)
-[![Version](https://img.shields.io/badge/version-1.0.55-brightgreen)](https://pypi.org/project/codosdk/)
+[![Version](https://img.shields.io/badge/version-1.0.60-brightgreen)](https://pypi.org/project/codosdk/)
 
-CODO项目的官方Python SDK，提供企业级Web应用开发框架和运维工具集成。基于Tornado，集成数据库、缓存、消息队列、认证等核心组件。
+CODO项目的官方Python SDK，提供企业级Web应用开发框架和运维工具集成。基于Tornado，集成数据库、缓存、消息队列、认证等核心组件；并提供 **开放 API（AK/SK）客户端** 与 **`codo-cli` 命令行**。
 
 ## 核心特性
 
@@ -12,8 +12,9 @@ CODO项目的官方Python SDK，提供企业级Web应用开发框架和运维工
 - **数据库支持** - SQLAlchemy ORM，支持主从库配置
 - **Redis缓存** - 多连接池管理
 - **消息队列** - RabbitMQ集成
-- **多种认证** - JWT、LDAP、Session
-- **API集成** - 预定义CODO各平台API接口
+- **多种认证** - JWT、LDAP、Session；开放 API AK/SK 签名
+- **API集成** - 预定义 admin / cmdb / k2 / cnmp / iris 等平台接口
+- **codo-cli** - 基于 AK/SK 的命令行调用
 - **数据验证** - Pydantic模型验证
 - **工具支持** - 各类常用工具封装
 
@@ -117,10 +118,7 @@ print(resp.status_code, resp.text)
 
 ## codo-cli（开放 API 命令行）
 
-一期通过 **AK/SK** 调用 **codo-admin**（网关前缀 `/api/p`）。
-
-**完整说明见 [codo_cli/README.md](codo_cli/README.md)。API 目录：`websdk2/apis/mgv4_apis.py`。**。
-
+通过 **AK/SK** 调用网关后的各业务服务。完整说明见 **[codo_cli/README.md](codo_cli/README.md)**。
 
 ### 快速开始
 
@@ -135,6 +133,12 @@ codo-cli admin call get_biz_list --pretty
 codo-cli admin biz-list
 codo-cli api request GET /api/p/v4/biz/list/ --pretty
 codo-cli api request POST /api/p/v4/user/ -d @body.json --yes   # 写操作必须 --yes
+
+codo-cli cmdb list --quiet | head
+codo-cli k2 list --filter project
+codo-cli kerrigan call get_publish_config -p project_code=demo --pretty
+codo-cli cnmp list --filter agent
+codo-cli iris list --filter topology
 ```
 
 ### 消息队列
@@ -207,45 +211,75 @@ redis_config = {
 
 ```
 ops_sdk/
-├── websdk2/                        # Web开发SDK（主模块）
-│   ├── apis/                       # CODO平台API集合
-│   │   ├── admin_apis.py          # 用户管理API
-│   │   ├── mgv4_apis.py           # 后台管理API
-│   │   ├── cmdb_apis.py           # CMDB配置API
-│   │   ├── agent_apis.py          # Agent代理API
-│   │   ├── task_apis.py           # 任务调度API
-│   │   ├── kerrigan_apis.py       # 配置文件管理API
-│   │   └── notice_apis.py         # 通知告警API
-│   │
-│   ├── cloud/                     # 云厂商SDK
-│   │
-│   ├── utils/                     # 工具集
-│   │   ├── pydantic_utils.py      # Pydantic数据验证
-│   │   ├── date_format.py         # 日期格式化
-│   │   └── cc_crypto.py           # 加密解密
-│   │
-│   ├── application.py              # Tornado应用定制
-│   ├── base_handler.py             # 请求处理基类（认证、授权）
-│   ├── db_context.py               # 数据库连接管理
-│   ├── cache.py / cache_context.py # Redis缓存管理
-│   ├── crud_utils.py               # CRUD工具（分页、验证）
-│   ├── sqlalchemy_pagination.py    # ORM分页组件
-│   ├── model_utils.py              # 模型转换工具
-│   ├── jwt_token.py                # JWT认证
-│   ├── mqhelper.py                 # RabbitMQ消息队列
-│   ├── client.py                   # API调用客户端
-│   ├── ldap.py                     # LDAP认证
-│   ├── configs.py                  # 配置管理
-│   ├── consts.py                   # 常量定义
-│   ├── error.py                    # 自定义异常
-│   ├── logger.py                   # 日志配置
-│   └── ...                         # 其他工具模块
+├── codo_cli/                       # 开放 API 命令行（入口：codo-cli）
+│   ├── README.md                   # CLI 完整使用文档
+│   ├── main.py                     # argparse 子命令入口
+│   ├── config.py                   # ~/.codo/config.yaml（SK 禁止落盘）
+│   └── client.py                   # 封装 OpenAPIClient
 │
-├── opssdk/                         # 运维SDK（原始模块）
-│   └── utils/                      # 运维工具集
+├── websdk2/                        # Web 开发 SDK（主模块）
+│   ├── apis/                       # 各服务 API 声明（供 SDK / codo-cli）
+│   │   ├── __init__.py             # SERVICE_API_CLASSES 注册表
+│   │   ├── mgv4_apis.py            # codo-admin（/api/p）AdminV4APIS
+│   │   ├── admin_apis.py           # 历史 admin API
+│   │   ├── cmdb_apis.py            # codo-cmdb（/api/cmdb）CMDBAPIS
+│   │   ├── k2_apis.py              # codo-k2 配置中心 V2（/api/k2）K2APIS
+│   │   ├── kerrigan_apis.py        # kerrigan 配置中心 V1 老（/api/kerrigan）
+│   │   ├── cnmp_apis.py            # codo-cnmp 云原生（/api/cnmp）CNMPAPIS
+│   │   ├── iris_apis.py            # codo-iris 拓扑/告警（/api/iris）IrisAPIS
+│   │   ├── agent_apis.py           # Agent
+│   │   ├── task_apis.py            # 任务调度
+│   │   └── notice_apis.py          # 通知
+│   │
+│   ├── openapi_client.py           # AK/SK 签名 HTTP 客户端
+│   ├── openapi_sign.py             # CODO1-HMAC-SHA256 签名
+│   ├── client.py                   # 传统 JWT/Cookie API 客户端（AcsClient）
+│   │
+│   ├── cloud/                      # 云厂商 SDK
+│   ├── utils/                      # 工具集
+│   │   ├── pydantic_utils.py
+│   │   ├── date_format.py
+│   │   └── cc_crypto.py
+│   │
+│   ├── application.py              # Tornado 应用
+│   ├── base_handler.py             # 请求处理基类
+│   ├── db_context.py               # 数据库连接
+│   ├── cache.py / cache_context.py # Redis
+│   ├── crud_utils.py
+│   ├── sqlalchemy_pagination.py
+│   ├── model_utils.py
+│   ├── jwt_token.py                # JWT
+│   ├── mqhelper.py                 # RabbitMQ
+│   ├── ldap.py
+│   ├── configs.py / consts.py
+│   ├── error.py / logger.py
+│   └── ...
 │
-├── setup.py                        # 包配置
-└── pyproject.toml                  # 项目配置
+├── opssdk/                         # 运维 SDK（原始模块）
+│   └── utils/
+│
+├── tests/                          # 单元测试
+│   ├── test_codo_cli_and_mgv4.py
+│   ├── test_multi_service_apis.py
+│   └── test_openapi_sign.py
+│
+├── setup.py                        # 包配置（含 console_scripts: codo-cli）
+├── pyproject.toml
+└── README.md
+```
+
+网关 path 与服务对应关系见上文 **codo-cli** 表格；Python 调用示例：
+
+```python
+from websdk2.openapi_client import OpenAPIClient
+from websdk2.apis.cmdb_apis import CMDBAPIS
+from websdk2.apis.k2_apis import K2APIS
+from websdk2.apis.kerrigan_apis import KerriganAPIS  # V1 老配置中心
+from websdk2.apis.cnmp_apis import CNMPAPIS
+from websdk2.apis.iris_apis import IrisAPIS
+
+client = OpenAPIClient(endpoint="https://gw.example.com", access_key="...", secret_key="...")
+# 使用各 APIS 类中的 url / method 字段拼请求，或直接 client.request(...)
 ```
 
 ## License

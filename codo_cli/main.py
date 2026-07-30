@@ -109,10 +109,20 @@ def cmd_api_request(ns):
     return print_response(resp, pretty=ns.pretty, show_headers=ns.headers)
 
 
-def cmd_admin_list(ns):
-    from websdk2.apis.mgv4_apis import AdminV4APIS
+def _resolve_api_class(service):
+    from websdk2.apis import get_service_api_class
 
-    items = AdminV4APIS.list_apis()
+    cls = get_service_api_class(service)
+    if not cls:
+        raise SystemExit(
+            '未知服务: %s （可选: admin, cmdb, k2, kerrigan, cnmp, iris）' % service
+        )
+    return cls
+
+
+def cmd_svc_list(ns):
+    cls = _resolve_api_class(ns.service)
+    items = cls.list_apis()
     if ns.filter:
         kw = ns.filter.lower()
         items = [
@@ -129,12 +139,14 @@ def cmd_admin_list(ns):
     return 0
 
 
-def cmd_admin_call(ns):
-    from websdk2.apis.mgv4_apis import AdminV4APIS
-
-    spec = AdminV4APIS.get_api(ns.name)
+def cmd_svc_call(ns):
+    cls = _resolve_api_class(ns.service)
+    spec = cls.get_api(ns.name)
     if not spec:
-        print('未知 API: %s （codo-cli admin list 查看）' % ns.name, file=sys.stderr)
+        print(
+            '未知 API: %s （codo-cli %s list 查看）' % (ns.name, ns.service),
+            file=sys.stderr,
+        )
         return 2
 
     method = (ns.method or spec.get('method') or 'GET').upper()
@@ -169,30 +181,43 @@ def cmd_admin_call(ns):
     return print_response(resp, pretty=ns.pretty, show_headers=ns.headers)
 
 
+def cmd_admin_list(ns):
+    ns.service = 'admin'
+    return cmd_svc_list(ns)
+
+
+def cmd_admin_call(ns):
+    ns.service = 'admin'
+    return cmd_svc_call(ns)
+
+
 def cmd_admin_user_list(ns):
+    ns.service = 'admin'
     ns.name = 'get_user_list'
     ns.method = None
     ns.data = None
     ns.param = ns.param or []
     if ns.search:
         ns.param = list(ns.param) + ['searchVal=%s' % ns.search]
-    return cmd_admin_call(ns)
+    return cmd_svc_call(ns)
 
 
 def cmd_admin_biz_list(ns):
+    ns.service = 'admin'
     ns.name = 'get_biz_list'
     ns.method = None
     ns.data = None
     ns.param = ns.param or []
-    return cmd_admin_call(ns)
+    return cmd_svc_call(ns)
 
 
 def cmd_admin_role_base_list(ns):
+    ns.service = 'admin'
     ns.name = 'get_all_base_role_list'
     ns.method = None
     ns.data = None
     ns.param = ns.param or []
-    return cmd_admin_call(ns)
+    return cmd_svc_call(ns)
 
 
 def _add_global_auth_args(p):
@@ -210,10 +235,38 @@ def _add_global_auth_args(p):
     p.add_argument('--headers', action='store_true', help='打印响应头')
 
 
+def _add_svc_list_call(sub, service, help_text):
+    """为服务注册 list / call 子命令。"""
+    p_svc = sub.add_parser(service, help=help_text)
+    svc_sub = p_svc.add_subparsers(dest='%s_cmd' % service)
+
+    p_list = svc_sub.add_parser('list', help='列出已声明 API')
+    p_list.add_argument('--filter', default=None, help='按名称/描述/url 过滤')
+    p_list.add_argument('--pretty', action='store_true')
+    p_list.add_argument('--quiet', action='store_true', help='只打印 API 名')
+    p_list.set_defaults(func=cmd_svc_list, service=service)
+
+    p_call = svc_sub.add_parser('call', help='按 API 名调用')
+    p_call.add_argument('name', help='API 属性名（见 list）')
+    p_call.add_argument('--method', default=None, help='覆盖 method')
+    p_call.add_argument(
+        '-p', '--param', action='append', default=[], help='query: key=value'
+    )
+    p_call.add_argument('-d', '--data', default=None, help='JSON body 或 @file')
+    p_call.add_argument('-y', '--yes', action='store_true', help='确认写操作')
+    _add_global_auth_args(p_call)
+    p_call.set_defaults(func=cmd_svc_call, service=service)
+    return svc_sub
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog='codo-cli',
-        description='CODO 开放 API 命令行（AK/SK）。一期支持 admin /api/p',
+        description=(
+            'CODO 开放 API 命令行（AK/SK）。'
+            '服务: admin(/api/p) cmdb(/api/cmdb) k2(/api/k2) kerrigan(/api/kerrigan) '
+            'cnmp(/api/cnmp) iris(/api/iris)'
+        ),
     )
     parser.add_argument('--version', action='version', version='codo-cli %s' % __version__)
     sub = parser.add_subparsers(dest='command')
@@ -253,28 +306,8 @@ def build_parser():
     _add_global_auth_args(p_req)
     p_req.set_defaults(func=cmd_api_request)
 
-    # admin
-    p_adm = sub.add_parser('admin', help='codo-admin API')
-    adm_sub = p_adm.add_subparsers(dest='admin_cmd')
-
-    p_list = adm_sub.add_parser('list', help='列出 AdminV4APIS 已声明接口')
-    p_list.add_argument('--filter', default=None, help='按名称/描述/url 过滤')
-    p_list.add_argument('--pretty', action='store_true')
-    p_list.add_argument('--quiet', action='store_true', help='只打印 API 名')
-    p_list.set_defaults(func=cmd_admin_list)
-
-    p_call = adm_sub.add_parser('call', help='按 API 名调用，如 get_biz_list')
-    p_call.add_argument('name', help='AdminV4APIS 属性名')
-    p_call.add_argument('--method', default=None, help='覆盖 method')
-    p_call.add_argument(
-        '-p', '--param', action='append', default=[], help='query: key=value'
-    )
-    p_call.add_argument('-d', '--data', default=None, help='JSON body 或 @file')
-    p_call.add_argument('-y', '--yes', action='store_true', help='确认写操作')
-    _add_global_auth_args(p_call)
-    p_call.set_defaults(func=cmd_admin_call)
-
-    # sugar
+    # admin（保留糖衣子命令）
+    adm_sub = _add_svc_list_call(sub, 'admin', 'codo-admin API（/api/p）')
     p_ul = adm_sub.add_parser('user-list', help='用户列表（get_user_list）')
     p_ul.add_argument('--search', default=None, help='searchVal')
     p_ul.add_argument('-p', '--param', action='append', default=[])
@@ -293,6 +326,13 @@ def build_parser():
     p_rl.add_argument('-y', '--yes', action='store_true')
     _add_global_auth_args(p_rl)
     p_rl.set_defaults(func=cmd_admin_role_base_list)
+
+    # cmdb / k2(V2) / kerrigan(V1 老) / cnmp / iris
+    _add_svc_list_call(sub, 'cmdb', 'codo-cmdb API（/api/cmdb）')
+    _add_svc_list_call(sub, 'k2', 'codo-k2 配置中心 V2 API（/api/k2）')
+    _add_svc_list_call(sub, 'kerrigan', '配置中心 V1 老项目 API（/api/kerrigan）')
+    _add_svc_list_call(sub, 'cnmp', 'codo-cnmp 云原生 API（/api/cnmp）')
+    _add_svc_list_call(sub, 'iris', 'codo-iris 拓扑/告警 API（/api/iris）')
 
     return parser
 
