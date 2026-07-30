@@ -136,7 +136,6 @@ codo-cli api request POST /api/p/v4/user/ -d @body.json --yes   # 写操作必�
 
 codo-cli cmdb list --quiet | head
 codo-cli k2 list --filter project
-codo-cli kerrigan call get_publish_config -p project_code=demo --pretty
 codo-cli cnmp list --filter agent
 codo-cli iris list --filter topology
 ```
@@ -274,7 +273,6 @@ ops_sdk/
 from websdk2.openapi_client import OpenAPIClient
 from websdk2.apis.cmdb_apis import CMDBAPIS
 from websdk2.apis.k2_apis import K2APIS
-from websdk2.apis.kerrigan_apis import KerriganAPIS  # V1 老配置中心
 from websdk2.apis.cnmp_apis import CNMPAPIS
 from websdk2.apis.iris_apis import IrisAPIS
 

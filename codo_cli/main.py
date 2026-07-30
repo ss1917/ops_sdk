@@ -115,7 +115,7 @@ def _resolve_api_class(service):
     cls = get_service_api_class(service)
     if not cls:
         raise SystemExit(
-            '未知服务: %s （可选: admin, cmdb, k2, kerrigan, cnmp, iris）' % service
+            '未知服务: %s （可选: admin, cmdb, k2, cnmp, iris）' % service
         )
     return cls
 
@@ -264,8 +264,7 @@ def build_parser():
         prog='codo-cli',
         description=(
             'CODO 开放 API 命令行（AK/SK）。'
-            '服务: admin(/api/p) cmdb(/api/cmdb) k2(/api/k2) kerrigan(/api/kerrigan) '
-            'cnmp(/api/cnmp) iris(/api/iris)'
+            '服务: admin(/api/p) cmdb(/api/cmdb) k2(/api/k2) cnmp(/api/cnmp) iris(/api/iris)'
         ),
     )
     parser.add_argument('--version', action='version', version='codo-cli %s' % __version__)
@@ -327,10 +326,9 @@ def build_parser():
     _add_global_auth_args(p_rl)
     p_rl.set_defaults(func=cmd_admin_role_base_list)
 
-    # cmdb / k2(V2) / kerrigan(V1 老) / cnmp / iris
+    # cmdb / k2(配置中心 V2) / cnmp / iris（kerrigan V1 已废弃，CLI 不暴露）
     _add_svc_list_call(sub, 'cmdb', 'codo-cmdb API（/api/cmdb）')
     _add_svc_list_call(sub, 'k2', 'codo-k2 配置中心 V2 API（/api/k2）')
-    _add_svc_list_call(sub, 'kerrigan', '配置中心 V1 老项目 API（/api/kerrigan）')
     _add_svc_list_call(sub, 'cnmp', 'codo-cnmp 云原生 API（/api/cnmp）')
     _add_svc_list_call(sub, 'iris', 'codo-iris 拓扑/告警 API（/api/iris）')
 

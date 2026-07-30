@@ -117,7 +117,6 @@ codo-cli api request GET /api/p/v4/biz/list/ --pretty
 | codo-admin | `/api/p` | `codo-cli admin` | `AdminV4APIS` |
 | codo-cmdb | `/api/cmdb` | `codo-cli cmdb` | `CMDBAPIS` |
 | codo-k2（配置中心 **V2 新项目**） | `/api/k2` | `codo-cli k2` | `K2APIS` |
-| kerrigan（配置中心 **V1 老项目**） | `/api/kerrigan` | `codo-cli kerrigan` | `KerriganAPIS` |
 | codo-cnmp | `/api/cnmp` | `codo-cli cnmp` | `CNMPAPIS` |
 | codo-iris | `/api/iris` | `codo-cli iris` | `IrisAPIS` |
 
@@ -126,8 +125,6 @@ codo-cli cmdb list --quiet | head
 codo-cli cmdb call get_service_tree -p biz_id=1 --pretty
 codo-cli k2 list --filter project          # V2 新项目 /api/k2
 codo-cli k2 call get_v1_project_ --pretty
-codo-cli kerrigan list                     # V1 老项目 /api/kerrigan
-codo-cli kerrigan call get_publish_config -p project_code=demo --pretty
 codo-cli cnmp list --filter agent
 codo-cli cnmp call get_api_v1_agent_list --pretty
 codo-cli iris list --filter topology
@@ -135,7 +132,7 @@ codo-cli iris call get_api_v1_topology_list --pretty
 codo-cli api request GET /api/cmdb/api/v2/cmdb/server/ --pretty
 ```
 
-> **kerrigan vs k2：** kerrigan 是配置中心老版本（`/api/kerrigan`）；k2（codo-k2）是 V2 新项目（`/api/k2`）。CLI 与 API 类均分开，不要混用路径。
+> **说明：** 配置中心请使用 **k2**（codo-k2，`/api/k2`）。老项目 kerrigan（`/api/kerrigan`）已废弃，CLI 不再提供子命令；SDK 仍保留 `KerriganAPIS` 供旧代码 import。
 
 
 ## 配置说明

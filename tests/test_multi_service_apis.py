@@ -15,17 +15,17 @@ def test_k2_prefix():
     assert all(i['url'].startswith('/api/k2/') for i in items)
 
 
-def test_kerrigan_v1_separate_from_k2():
-    """kerrigan=V1 老项目 /api/kerrigan；k2=V2 新项目 /api/k2，不可混用。"""
+def test_kerrigan_deprecated_not_in_cli_registry():
+    """KerriganAPIS 仍可 import（兼容旧代码），但不进 CLI 服务表。"""
     from websdk2.apis.kerrigan_apis import KerriganAPIS
     from websdk2.apis.k2_apis import K2APIS
+    from websdk2.apis import get_service_api_class
 
     assert hasattr(KerriganAPIS, 'get_publish_config')
     assert KerriganAPIS.kerrigan_prefix == '/api/kerrigan'
-    assert KerriganAPIS.get_publish_config['url'].startswith('/api/kerrigan/')
     assert K2APIS.route_prefix == '/api/k2'
-    # 不是继承关系
-    assert not issubclass(KerriganAPIS, K2APIS)
+    assert get_service_api_class('kerrigan') is None
+    assert get_service_api_class('k2') is K2APIS
 
 
 def test_cnmp_prefix():
@@ -47,16 +47,14 @@ def test_iris_prefix():
 def test_service_registry():
     from websdk2.apis import get_service_api_class
     from websdk2.apis.k2_apis import K2APIS
-    from websdk2.apis.kerrigan_apis import KerriganAPIS
 
-    for s in ('admin', 'cmdb', 'k2', 'cnmp', 'iris', 'kerrigan'):
+    for s in ('admin', 'cmdb', 'k2', 'cnmp', 'iris'):
         assert get_service_api_class(s) is not None
     assert get_service_api_class('k2') is K2APIS
-    assert get_service_api_class('kerrigan') is KerriganAPIS
-    assert get_service_api_class('k2') is not get_service_api_class('kerrigan')
+    assert get_service_api_class('kerrigan') is None
 
 
 def test_cli_svc_list():
     from codo_cli.main import main
-    for s in ('admin', 'cmdb', 'k2', 'kerrigan', 'cnmp', 'iris'):
+    for s in ('admin', 'cmdb', 'k2', 'cnmp', 'iris'):
         assert main([s, 'list', '--quiet']) == 0
